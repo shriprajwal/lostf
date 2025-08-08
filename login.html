@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Signup</title>
+  <link rel="stylesheet" href="css/signup.css" />
+  <script type="module" src="js/login.js" defer></script>
+   <script type="module" src="js/google.js" defer></script>
+</head>
+<body>
+    <header>
+    <nav class="navbar">
+      <div class="logo"><span></span> <strong>Lostfusion</strong></div>
+      <ul class="nav-links">
+        <li><a class="active" href="index.html">Home</a></li>
+        <li><a href="login.html">Report Item</a></li>
+        <li><a href="login.html">View Listings</a></li>
+      </ul>
+      <div class="auth-toggle">
+        <label class="switch">
+          <input type="checkbox" />
+          <span class="slider round"></span>
+        </label>
+        <a href="login.html" class="login-btn">Login</a>
+        <a href="signup.html" class="signup-btn">Signup</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="login-box">
+      <h2>Login</h2>
+      <form>
+        <input type="email" placeholder="Email" id="email" required />
+        <input type="password" placeholder="Create password" id="password" required />
+        <span class="toggle-password">Show</span>
+        
+        <button id="submit" type="submit" class="loginbtn">Login</button>
+        <p class="signup-link">Create an account? <a href="signup.html">Signup</a></p>
+
+        <div class="divider"><span>Or</span></div>
+
+
+        <button id="google-signup" type="button" class="social-btn">
+          <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google" />
+          Login with Google
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
