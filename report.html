@@ -6,6 +6,7 @@
   <title>Report Item - Back2U</title>
   <link rel="stylesheet" href="css/style.css" />
   <script type="module" src="js/home.js" defer></script>
+  <script type="module" src="js/report.js" defer></script>
 </head>
 <body>
   <header>
@@ -14,7 +15,7 @@
       <ul class="nav-links">
         <li><a  href="loggedin.html">Home</a></li>
         <li><a class="active" href="#">Report Item</a></li>
-        <li><a href="items.html">View Listings</a></li>
+        <li><a href="lostitems.html">View Listings</a></li>
       </ul>
       <div class="auth-toggle">
         <label class="switch">
@@ -44,35 +45,37 @@
       <h2>Report Item</h2>
 
       <div class="input-group">
-        <input type="text" placeholder="Item Name" required />
-        <select required>
+        <input type="text" id="title" placeholder="Item Name" required />
+        <select id="category" required>
           <option disabled selected>Category</option>
           <option>Electronics</option>
           <option>Clothing</option>
           <option>Documents</option>
           <option>Accessories</option>
+          <option>Other</option>
         </select>
       </div>
 
-      <textarea placeholder="Give the description of the product Found/Lost......" required></textarea>
+      <textarea id="description" placeholder="Give the description of the product Found/Lost......" required></textarea>
 
       <div class="input-group">
-        <input type="datetime-local" required />
-        <input type="text" placeholder="Location (Where Lost/Found)" required />
+        <input id="time" type="datetime-local" required />
+        <input id="location" type="text" placeholder="Location (Where Lost/Found)" required />
       </div>
 
       <div class="input-group">
-        <select required>
+        <select id="status" required>
           <option disabled selected>-- Select Status --</option>
           <option>Lost</option>
           <option>Found</option>
         </select>
-        <input type="text" placeholder="Contact Information" required />
+        <input id="contact" type="tel" placeholder="Phone Number" required maxlength="10" minlength="10" />
+        <input id="collegeid" type="text" placeholder="College ID" required />
       </div>
-
+      
       <input type="file" />
 
-      <button class="report-btn" type="submit">Report Item</button>
+      <button class="report-btn" id="reportBtn" type="submit">Report Item</button>
     </form>
   </main>
   <script>

@@ -152,6 +152,7 @@ input:checked + .slider:before {
 input[type="text"],
 input[type="datetime-local"],
 input[type="file"],
+input[type="tel"],
 select,
 textarea {
   width: 100%;

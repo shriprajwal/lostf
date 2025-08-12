@@ -6,6 +6,7 @@
   <title>Back2U - Lost & Found</title>
   <link rel="stylesheet" href="css/stylesheet.css" />
   <script type="module" src="js/home.js" defer></script>
+  <script type="module" src="js/list.js" defer></script>
 </head>
 <body>
   <header>
@@ -38,8 +39,18 @@
         </div>
 
     </nav>
-  </header>
-
+    </header>
+    <main class="main-content">
+     <div class="Rnavbar">
+        <ul class="Rnav-links">
+          <li><a  href="lostitems.html">Lost Items</a></li>
+          <li><a class="active" href="#">Found Items</a></li>
+        </ul>
+      </div>
+    </main>
+      <div id="itemList" class="itemlist"></div>
+    </div>
+      
   <script>
     function toggleUserDropdown() {
       const dropdown = document.getElementById("userDropdown");
