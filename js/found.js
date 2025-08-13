@@ -15,7 +15,7 @@ const firebaseConfig = {
 
   function loadItems() {
     const q = query(
-      collection(db, "lost_reports"),
+      collection(db, "found_reports"),
       orderBy("createdAt", "desc")
     );
 
