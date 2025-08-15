@@ -8,7 +8,7 @@
 
 body {
   background-color: #121212;
-  color: white;
+  color: rgb(255, 255, 255);
 }
 .navbar {
   display: flex;
@@ -138,21 +138,28 @@ input:checked + .slider:before {
   gap: 20px;
 }
 
+::placeholder {
+  color: #ffffff;
+  font-weight: bold;
+}
+
 .report-form h2 {
   text-align: center;
-  color: #58a6ff;
+  color: #50a0fc;
 }
 
 .input-group {
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
+  color: #ffffff;
+  font-weight: bold;
 }
 
 input[type="text"],
 input[type="datetime-local"],
 input[type="file"],
-input[type="tel"],
+input[type="phone"],
 select,
 textarea {
   width: 100%;
@@ -160,12 +167,16 @@ textarea {
   border-radius: 6px;
   border: none;
   background-color: #21262d;
-  color: #c9d1d9;
+  color: #ffffff;
+  font-weight: bold;
 }
 
 textarea {
   min-height: 100px;
   resize: vertical;
+  color: #ffffff;
+  font-weight: bold;
+
 }
 
 button {
@@ -225,3 +236,29 @@ button {
       vertical-align: middle;
       margin-right: 0.5rem;
     }
+    
+    #connectDriveBtn {
+  background: linear-gradient(90deg, #1e3a8a, #3b82f6); /* deep blue to light blue */
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+#connectDriveBtn:hover {
+  background: linear-gradient(90deg, #3b82f6, #1e3a8a);
+  transform: translateY(-2px);
+}
+
+#connectDriveBtn:active {
+  transform: translateY(0);
+}
+
+#connectDriveBtn:disabled {
+  background: #9ca3af; /* gray when disabled */
+  cursor: not-allowed;
+}

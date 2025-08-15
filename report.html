@@ -6,7 +6,7 @@
   <title>Report Item - Back2U</title>
   <link rel="stylesheet" href="css/style.css" />
   <script type="module" src="js/home.js" defer></script>
-  <script type="module" src="js/report.js" defer></script>
+  <script type="module" src="js/report.js"></script>
 </head>
 <body>
   <header>
@@ -41,7 +41,7 @@
   </header>
 
   <main class="form-container">
-    <form class="report-form">
+    <form class="report-form" id="reportForm">
       <h2>Report Item</h2>
 
       <div class="input-group">
@@ -69,11 +69,14 @@
           <option>Lost</option>
           <option>Found</option>
         </select>
-        <input id="contact" type="tel" placeholder="Phone Number" required pattern="[0-9]{10}" maxlength="10" minlength="10" />
+        <input id="contact" type="phone" placeholder="Phone Number"  pattern="^[6-9]\d{9}$" maxlength="10" minlength="10" required />
         <input id="collegeid" type="text" placeholder="College ID" required />
       </div>
-      
-      <input type="file" />
+      <div>
+        <button type="button" id="connectDriveBtn">Connect Google Drive</button>
+    </div>
+
+      <input type="file" id="imageFile" accept="image/*" required>
 
       <button class="report-btn" id="reportBtn" type="submit">Report Item</button>
     </form>
@@ -94,5 +97,10 @@
     });
 
   </script>
+  <script src="https://apis.google.com/js/api.js?onload=onGapiLoad" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" onload="onGisLoad()" async defer></script>
+
+    <!-- ✅ Your JS -->
+    
 </body>
 </html>

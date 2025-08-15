@@ -49,7 +49,7 @@ const firebaseConfig = {
       });
       alert("Report submitted successfully!");
       console.log("Report submitted successfully!");
-      e.target.reset();      
+      document.getElementById("reportForm").reset()      
     } catch (error) {
       console.error("Error submitting report: ", error);
     }
@@ -69,7 +69,7 @@ const firebaseConfig = {
         });
         alert("Report submitted successfully!");
         console.log("Report submitted successfully!");
-        e.target.reset();
+        document.getElementById("reportForm").reset()
       } catch (error) {
         console.error("Error submitting report: ", error);
         }
