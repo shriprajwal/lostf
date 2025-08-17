@@ -28,9 +28,18 @@ const firebaseConfig = {
     const status = document.getElementById("status").value;
     const collegeid = document.getElementById("collegeid").value;
     const contact = document.getElementById("contact").value;
+    const errorMsg = document.getElementById("error-msg");
 
   if (!title || !category || !description || !time || !location || !status || !collegeid || !contact) {
     alert("Please fill in all fields.");
+    return;
+  }
+  if (errorMsg.style.display === "block") {
+    alert("❌ Must be 10 digits & start with 6, 7, 8, or 9");
+    return;
+  }
+  if (collegeid.match(/^\d{2}[A-Za-z]{2}\d{3}$/) === null) {
+    alert("❌ Invalid College ID format");
     return;
   }
 

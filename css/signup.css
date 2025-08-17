@@ -6,26 +6,74 @@
   font-family: "Segoe UI", sans-serif;
 }
 
+html, body {
+  overflow-y: scroll;  /* ensure scroll still works */
+  -ms-overflow-style: none;  /* IE & Edge */
+  scrollbar-width: none;     /* Firefox */
+height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Edge */
+}
+
 body {
-  background-color: #050505;
-  color: white;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #0f0f0f, #1a1a1a); /* fallback bg */
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  min-height: 100vh;  
+}
+
+/* Glassmorphism base style */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border-radius: 16px;
+}
+
+
+main {
+  flex: 1; /* take available space */
+  min-height: 100vh;  /* always at least full screen */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 /* Navbar */
 .navbar {
+  position: relative; /* scrolls with page */
+  width: 100%;
+  padding: 1.2rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.2rem 2rem;
-  background-color: #1e1e1e;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  z-index: 10;
+
+  /* transparent with gradient for readability */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
+
 
 .logo {
   font-size: 1.5rem;
-  color: #3d87ff;
+  color: #ffffff;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -36,19 +84,25 @@ body {
   list-style: none;
   display: flex;
   gap: 1.5rem;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
 }
 
 .nav-links a {
-  color: #aaa;
+  color: #ffffff;
+  font-weight: bold;
   text-decoration: none;
   padding: 6px 10px;
   border-radius: 6px;
   transition: 0.3s;
+  font-weight: 500;
 }
 
+.nav-links a.active,
 .nav-links a:hover {
   background-color: #3d87ff;
-  color: white;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
 }
 
 .auth-toggle {
@@ -69,59 +123,34 @@ body {
 .signup-btn {
   background-color: #3d87ff;
   color: white;
+  font-weight: bold;
 }
 
 .login-btn {
-  border: 1px solid #3d87ff;
-  color: #3d87ff;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  font-weight: bold;
 }
 
 .login-btn:hover {
   background-color: #3d87ff;
   color: white;
+  font-weight: bold;
 }
 
-/* Toggle switch (non-functional) */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 36px;
-  height: 20px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
+.video-bg {
+  position: fixed;
   top: 0; left: 0;
-  right: 0; bottom: 0;
-  background-color: #ccc;
-  border-radius: 34px;
-  transition: 0.4s;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: -1; /* always behind */
 }
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 14px;
-  width: 14px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #3d87ff;
-}
-
-input:checked + .slider:before {
-  transform: translateX(16px);
+.video-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.9));
+  z-index: 0; /* sits above video but below content */
 }
 
 .container {
@@ -129,6 +158,7 @@ input:checked + .slider:before {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1; /* above video and overlay */
 }
 
 .signup-box {
@@ -140,6 +170,8 @@ input:checked + .slider:before {
   width: 100%;
   text-align: center;
   margin: 2rem auto;
+  display: block; /* Initially hidden */
+  z-index: 100;
 }
 
 /* Heading */
@@ -293,5 +325,58 @@ input:checked + .slider:before {
 
 .signup-link a {
   color: #007bff;
+  text-decoration: none;
+}
+
+.create-account {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+  margin: 2rem auto;
+  display: none; 
+}
+
+/* Heading */
+.create-account h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+/* Inputs */
+.create-account input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.site-footer {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #aaa;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1rem 0;
+  list-style: none;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: #ccc;
   text-decoration: none;
 }

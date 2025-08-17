@@ -7,8 +7,20 @@
   <link rel="stylesheet" href="css/style.css" />
   <script type="module" src="js/home.js" defer></script>
   <script type="module" src="js/report.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  
+  <!-- Font Awesome for social icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,1,0&icon_names=person" />
 </head>
+
 <body>
+  <video class="video-bg" autoplay muted loop>
+    <source src="assets/Untitled.mp4" type="video/mp4">
+    Your browser does not support HTML5 video.
+  </video>
+  <div class="video-overlay"></div>
   <header>
     <nav class="navbar">
       <div class="logo"><span></span> <strong>Lostfusion</strong></div>
@@ -18,16 +30,9 @@
         <li><a href="lostitems.html">View Listings</a></li>
       </ul>
       <div class="auth-toggle">
-        <label class="switch">
-          <input type="checkbox" />
-          <span class="slider round"></span>
-        </label>
         <div class="user-container">
         <button class="user-dropdown-btn" onclick="toggleUserDropdown()">
-          <svg class="pi" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="black" viewBox="0 0 16 16">
-  <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-        </svg>
-  <span id="userName">User</span> 
+          <svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#e3e3e3"><path d="M480-481q-66 0-108-42t-42-108q0-66 42-108t108-42q66 0 108 42t42 108q0 66-42 108t-108 42ZM160-160v-94q0-38 19-65t49-41q67-30 128.5-45T480-420q62 0 123 15.5T731-360q31 14 50 41t19 65v94H160Z"/></svg> 
 </button>
 
         <div class="user-dropdown" id="userDropdown">
@@ -69,8 +74,9 @@
           <option>Lost</option>
           <option>Found</option>
         </select>
-        <input id="contact" type="phone" placeholder="Phone Number"  pattern="^[6-9]\d{9}$" maxlength="10" minlength="10" required />
-        <input id="collegeid" type="text" placeholder="College ID" required />
+        <input id="contact" type="tel" placeholder="Phone Number"  pattern="[6-9]{10}" inputmode="numeric" maxlength="10" minlength="10" required />
+        <span class="error" id="error-msg">NOTE: Must be 10 digits & start with 6, 7, 8, or 9</span>
+        <input id="collegeid" type="text" placeholder="College ID" pattern="^\d{2}[A-Za-z]{2}\d{3}$" required />
       </div>
       <div>
         <button type="button" id="connectDriveBtn">Connect Google Drive</button>
@@ -81,6 +87,16 @@
       <button class="report-btn" id="reportBtn" type="submit">Report Item</button>
     </form>
   </main>
+  <footer class="site-footer">
+    <div class="footer-container">
+      <p>&copy; 2025 Lostfusion. All rights reserved.</p>
+      <ul class="footer-links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </footer>
   <script>
     function toggleUserDropdown() {
       const dropdown = document.getElementById("userDropdown");
@@ -93,6 +109,22 @@
       const button = document.querySelector(".user-dropdown-btn");
       if (!button.contains(event.target) && !dropdown.contains(event.target)) {
         dropdown.style.display = "none";
+      }
+    });
+
+    const phoneInput = document.getElementById("contact");
+    const errorMsg = document.getElementById("error-msg");
+
+    phoneInput.addEventListener("input", function () {
+      // Remove all non-digits
+      this.value = this.value.replace(/\D/g, "");
+
+      // Validate Indian mobile pattern
+      const indianPattern = /^[6-9]\d{9}$/;
+      if (this.value.length !== 10 || !indianPattern.test(this.value)) {
+        errorMsg.style.display = "block";
+      } else {
+        errorMsg.style.display = "none";
       }
     });
 

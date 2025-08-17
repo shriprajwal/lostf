@@ -27,7 +27,7 @@ const firebaseConfig = {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const username = document.getElementById("username").value;
-  const id = document.getElementById("id").value;
+  const collegeId = document.getElementById("id").value;
   const confirmPassword = document.getElementById("confirmpassword").value;
 
     if (password !== confirmPassword) {
@@ -51,9 +51,13 @@ const firebaseConfig = {
         // Save user data to Firestore
         const db = getFirestore();
         setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
           email,
           username,
-          id
+          collegeId,
+          role: "user",
+          createdAt: new Date()
+
         })
           .then(() => {
             console.log("User data saved to Firestore");

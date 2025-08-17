@@ -7,33 +7,39 @@
   <link rel="stylesheet" href="css/signup.css" />
   <script type="module" src="js/auth.js" defer></script>
    <script type="module" src="js/google.js" defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  
+  <!-- Font Awesome for social icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+<video class="video-bg" autoplay muted loop>
+    <source src="assets/Untitled.mp4" type="video/mp4">
+    Your browser does not support HTML5 video.
+  </video>
+  <div class="video-overlay"></div>
     <header>
     <nav class="navbar">
       <div class="logo"><span></span> <strong>Lostfusion</strong></div>
       <ul class="nav-links">
-        <li><a class="active" href="#">index</a></li>
+        <li><a class="active" href="#">Home</a></li>
         <li><a href="login.html">Report Item</a></li>
         <li><a href="login.html">View Listings</a></li>
       </ul>
       <div class="auth-toggle">
-        <label class="switch">
-          <input type="checkbox" />
-          <span class="slider round"></span>
-        </label>
         <a href="login.html" class="login-btn">Login</a>
         <a href="signup.html" class="signup-btn">Signup</a>
       </div>
     </nav>
   </header>
-
+<main>
   <div class="container">
-    <div class="signup-box">
+    <div class="signup-box" id="signup-box">
       <h2>Signup</h2>
       <form>
         <input type="username" placeholder="Username" id="username" required />       
-        <input type="text" placeholder="ID" id="id" required />
+        <input type="text" placeholder="College ID" id="id" required />
         <input type="email" placeholder="Email" id="email" required />
         <input type="password" placeholder="Create password" id="password" required />
         <span class="toggle-password">Show</span>
@@ -52,6 +58,26 @@
         </button>
       </form>
     </div>
+    <div id="create-account" class="create-account">
+      <h2>Create Account</h2>
+      <form>
+        <input type="username" placeholder="Username" id="gusername" required />       
+        <input type="text" placeholder="college ID" id="gcollegeId" required />
+        <button id="Create" type="submit" class="signupbtn">Create account</button>
+        <p class="login-link">Already have an account? <a href="login.html">Login</a></p>
+      </form>
+    </div>
   </div>
+</main>
+<footer class="site-footer">
+  <div class="footer-container">
+    <p>&copy; 2025 Lostfusion. All rights reserved.</p>
+    <ul class="footer-links">
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="privacy.html">Privacy Policy</a></li>
+    </ul>
+  </div>
+</footer>
 </body>
 </html>

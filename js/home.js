@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
   
 const firebaseConfig = {
     apiKey: "AIzaSyDx_N4uA4Va8mS6cpBqkSDld_HH3qqIFxQ",
@@ -15,15 +15,22 @@ const firebaseConfig = {
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const user = auth.currentUser;
+  const db = getFirestore(app);
 
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
   if (user) {
-    const name = user.displayName || user.email || "User";
-    document.getElementById("userName").textContent = name.split('@')[0];
-  } else {
-    document.getElementById("userName").textContent = "Guest";
-  }
-});
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const username = userDoc.data().username;
+          document.getElementById("userName").textContent = username;
+            } else {
+              const name = user.displayName || user.email || "User";
+              document.getElementById("userName").textContent = name.split('@')[0];
+            }
+      } else {
+        window.location.href = "signup.html";
+      }
+    });
 
 const Logoutbutton=document.getElementById("logout");
 Logoutbutton.addEventListener("click", function() {
