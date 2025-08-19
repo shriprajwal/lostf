@@ -166,7 +166,7 @@ main {
   padding: 2rem;
   border-radius: 15px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-  max-width: 450px;
+  max-width: 400px;
   width: 100%;
   text-align: center;
   margin: 2rem auto;
@@ -228,16 +228,16 @@ main {
   align-items: center;
   text-align: center;
   margin: 1.2rem 0;
-  color: #aaa;
+  color: rgb(0, 0, 0);
   font-size: 0.9rem;
 }
 
-.divider::before,
+.divider::before, 
 .divider::after {
   content: '';
   flex: 1;
   height: 1px;
-  background: #ddd;
+  background: #000000;
   margin: 0 10px;
 }
 

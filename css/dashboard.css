@@ -43,75 +43,114 @@ body{
 }
 
 /* Sidebar */
-.sidebar{
-  width:260px;
-  background: linear-gradient(180deg,var(--panel), #0f1320);
-  padding:28px 20px;
-  border-right: 1px solid var(--border);
-  display:flex;
-  flex-direction:column;
-  gap:18px;
-}
-.brand .logo{
-    padding-left: 25%;
-  font-weight:700;
-  font-size:20px;
-  color:var(--accent);
-  letter-spacing:0.4px;
-}
-.nav{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  margin-top:10px;
-}
-.nav-item{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  padding:12px;
-  border-radius:12px;
-  color:var(--muted);
-  cursor:pointer;
-  text-decoration:none;
-}
-.nav-item .icon{font-size:18px}
-.nav-item .label{font-weight:600}
-.nav-item:hover{background:rgba(77,124,255,0.06);color:#fff}
-.nav-item.active{background:linear-gradient(90deg,rgba(77,124,255,0.12),rgba(77,124,255,0.06));color:#fff;box-shadow: inset 0 0 20px rgba(77,124,255,0.02)}
-
-.sidebar-footer{margin-top:auto;color:var(--muted);font-size:13px}
-
-.dashboard-header {
-  padding: 20px;
-  align-items: center;
-  align-content: center;
-text-align: center;
-  color: #fff;
-  justify-content: center;
-}
-.main {
-    flex: 1;
-  padding: 20px;
-  justify-items: center;
+/* Sidebar Modern Style */
+.sidebar {
+  width: 240px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  padding: 28px 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  text-align: center;
-  justify-content: center;
-}
-.profile-info {
-  padding: 20px;
-  align-items: center;
-  align-content: center;
-  border-radius: 12px;
-  justify-content: center;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.3);
 }
 
+.brand .logo {
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--accent);
+  text-align: center;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+/* Nav Items */
+.nav-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.nav-item:hover {
+  background: rgba(77,124,255,0.15);
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(77,124,255,0.25), rgba(77,124,255,0.1));
+  color: #fff;
+  box-shadow: inset 0 0 15px rgba(77,124,255,0.15);
+}
+
+/* Main Area */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 1rem;
+  letter-spacing: 0.5px;
+}
+
+/* Profile Card */
+.profile-info {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 30px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-info:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(77,124,255,0.25);
+}
 
 #userpicture {
-  width: 150px;
-  height: 150px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  border: 3px solid var(--accent);
+  margin-bottom: 1rem;
+}
+
+.nav-item i {
+  font-size: 18px;
+  color: var(--muted);
+  transition: color 0.25s ease;
+}
+
+.nav-item:hover i,
+.nav-item.active i {
+  color: var(--accent);
+}
+
+#logout {
+  color: var(--danger);
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+#logout:hover {
+  color: #ff5252;
 }

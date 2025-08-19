@@ -269,22 +269,35 @@ main {
       border: none;
       padding: 0.5rem 1rem;
       font-weight: bold;
-      border-radius: 6px;
       cursor: pointer;
       text-align: center;
+    }
+
+    .user-dropdown-btn i {
+     font-size: 20px;
+     z-index: 130;
+    
+    }
+
+    .user-dropdown-btn:hover i {
+      color: #3d87ff;
     }
 
     .user-dropdown a {
       display: block;
       padding: 0.75rem 1rem;
-      color: #fff;
+      color: #ffffff;
       text-decoration: none;
       white-space: nowrap;
+      font-weight: bold;
+      transition: color 0.3s;
+      z-index: 130;
+    }
+    .user-dropdown a:hover {
+      background-color: #3b3c3d;
+      color: #ffffff;
     }
 
-    .user-dropdown a:hover {
-      background-color: #333;
-    }
 
     .pi {
       vertical-align: middle;
@@ -496,7 +509,7 @@ main {
   align-items: center;
   text-align: center;
   margin: 1.2rem 0;
-  color: #aaa;
+  color: #000000;
   font-size: 0.9rem;
 }
 
@@ -505,7 +518,7 @@ main {
   content: '';
   flex: 1;
   height: 1px;
-  background: #ddd;
+  background: #000000;
   margin: 0 10px;
 }
 
@@ -595,4 +608,12 @@ main {
 .signup-link a {
   color: #007bff;
   text-decoration: none;
+}
+
+#logout:hover .fas.fa-sign-out-alt {
+  color: #ff5252;
+}
+
+.user-dropdown:hover .fas.fa-user {
+  color: #3d87ff;
 }

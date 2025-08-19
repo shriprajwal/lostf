@@ -37,7 +37,7 @@ const firebaseConfig = {
           <div class="label">Item Name</div><div>${data.title}</div>
           <div class="label">Category</div><div>${data.category}</div>
           <div class="label">Description</div><div>${data.description}</div>
-          <div class="label">Date & Time</div><div>${data.dateTime}</div>
+          <div class="label">Date & Time</div><div>${data.time}</div>
           <div class="label">Location</div><div>${data.location}</div>
           <div class="label">Status</div>
             <div><span class="status-badge ${data.status === "Found" ? "status-found" : "status-lost"}">${data.status}</span></div>

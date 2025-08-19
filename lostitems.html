@@ -27,12 +27,14 @@
       <div class="auth-toggle">
         <div class="user-container">
         <button class="user-dropdown-btn" onclick="toggleUserDropdown()">
-           <svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#e3e3e3"><path d="M480-481q-66 0-108-42t-42-108q0-66 42-108t108-42q66 0 108 42t42 108q0 66-42 108t-108 42ZM160-160v-94q0-38 19-65t49-41q67-30 128.5-45T480-420q62 0 123 15.5T731-360q31 14 50 41t19 65v94H160Z"/></svg> 
+           <i class="fas fa-user"></i>
 </button>
 
         <div class="user-dropdown" id="userDropdown">
-          <a href="dashboard.html">Dashboard</a>
-          <a href="#" id="logout">Log Out</a>
+          <a href="dashboard.html"><i class="fas fa-user"></i>
+    <span class="label">Profile</span></a>
+          <a class="logout" href="#" id="logout"><i class="fas fa-sign-out-alt"></i>
+    <span class="label">Logout</span></a>
       </div>
         </div>
         </div>

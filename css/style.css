@@ -240,12 +240,20 @@ button {
       color: #fff;
       text-decoration: none;
       white-space: nowrap;
+      font-weight: bold;
     }
 
     .user-dropdown a:hover {
       background-color: #333;
     }
 
+    #logout:hover .fas.fa-sign-out-alt {
+  color: #ff5252;
+}
+
+.user-dropdown:hover .fas.fa-user {
+  color: #3d87ff;
+}
     .pi {
       vertical-align: middle;
       margin-right: 0.5rem;

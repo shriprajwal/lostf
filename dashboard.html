@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dashboard</title>
   <link rel="stylesheet" href="css/dashboard.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
    <script type="module" src="js/home.js" defer></script>
   <script type="module" src="js/profile.js" defer></script>
@@ -17,25 +18,20 @@
         <div class="logo">Lostfusion</div>
       </div>
 
-      <nav class="nav" >
-        <a class="nav-item" href="loggedin.html">
-          <span class="icon"></span>
-          <span class="label">Home</span>
-        </a>
-        <a class="nav-item active" href="profile.html">
-          <span class="icon"></span>
-          <span class="label">Profile
-          </span>
-        </a>
-        <a class="nav-item" href="manage-listing.html">
-          <span class="icon"></span>
-          <span class="label">Manage listing</span>
-        </a>
-        <a class="nav-item" id="logout">
-          <span class="icon"></span>
-          <span class="label" >Logout</span>
-        </a>
-      </nav>
+      <nav class="nav">
+  <a class="nav-item" href="loggedin.html">
+    <i class="fas fa-home"></i>
+    <span class="label">Home</span>
+  </a>
+  <a class="nav-item active" href="profile.html">
+    <i class="fas fa-user"></i>
+    <span class="label">Profile</span>
+  </a>
+  <a class="nav-item" id="logout">
+    <i class="fas fa-sign-out-alt"></i>
+    <span class="label">Logout</span>
+  </a>
+</nav>
 
     </aside>
     <main class="main">
