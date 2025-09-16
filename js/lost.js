@@ -1,54 +1,81 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getFirestore, query, collection, orderBy, onSnapshot} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-  
-const firebaseConfig = {
-    apiKey: "AIzaSyDx_N4uA4Va8mS6cpBqkSDld_HH3qqIFxQ",
-    authDomain: "lostfusion-b795e.firebaseapp.com",
-    projectId: "lostfusion-b795e",
-    storageBucket: "lostfusion-b795e.firebasestorage.app",
-    messagingSenderId: "378810950057",
-    appId: "1:378810950057:web:174ec8f1ee096de3aae4b8"
-  };
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+// 🔑 Supabase credentials
+const supabaseUrl = "https://padcweydrcsrzaazroan.supabase.co";
+const supabaseKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZGN3ZXlkcmNzcnphYXpyb2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0MzA4NzgsImV4cCI6MjA3MzAwNjg3OH0.8T6tSA5noZerWgDd4020EG9sCD5HJjWZbRRLeQSwDoM";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-  function loadItems() {
-    const q = query(
-      collection(db, "lost_reports"),
-      orderBy("createdAt", "desc")
-    );
+const itemsList = document.getElementById("itemList");
 
-    onSnapshot(q, (snapshot) => {
-      const itemsList = document.getElementById("itemList");
-      itemsList.innerHTML = "";
+// Function to render items
+function renderItems(data) {
+  itemsList.innerHTML = "";
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const card = document.createElement("div");
-        card.className = "item-card";
+  data.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "item-card";
 
-        const img = document.createElement("img");
-        img.src = data.imageUrl || "placeholder.jpg";
+    const img = document.createElement("img");
+    img.src = item.image_url || "assets/placeholder.jpg";
 
-        const details = document.createElement("div");
-        details.className = "item-details";
-        details.innerHTML = `
-          <div class="label">Item Name</div><div>${data.title}</div>
-          <div class="label">Category</div><div>${data.category}</div>
-          <div class="label">Description</div><div>${data.description}</div>
-          <div class="label">Date & Time</div><div>${data.time}</div>
-          <div class="label">Location</div><div>${data.location}</div>
-          <div class="label">Status</div>
-            <div><span class="status-badge ${data.status === "Found" ? "status-found" : "status-lost"}">${data.status}</span></div>
-          <div class="label">Contact Info</div><div>${data.contact}</div>
-        `;
+    const details = document.createElement("div");
+    details.className = "item-details";
 
-        card.appendChild(img);
-        card.appendChild(details);
-        itemsList.appendChild(card);
-      });
-    });
+    const reportedOn = item.createdAt
+      ? new Date(item.createdAt).toLocaleDateString()
+      : "N/A";
+
+    details.innerHTML = `
+      <div class="label">Item Name</div><div>${item.title || ""}</div>
+      <div class="label">Category</div><div>${item.category || ""}</div>
+      <div class="label">Description</div><div>${item.description || ""}</div>
+      <div class="label">Date & Time</div><div>${item.time || ""}</div>
+      <div class="label">Reported On</div><div>${reportedOn}</div>
+      <div class="label">Location</div><div>${item.location || ""}</div>
+      <div class="label">Status</div>
+        <div><span class="status-badge ${
+          item.status === "Found" ? "status-found" : "status-lost"
+        }">${item.status || "Lost"}</span></div>
+      <div class="label">Contact Info</div><div>${item.contact || ""}</div>
+    `;
+
+    card.appendChild(img);
+    card.appendChild(details);
+    itemsList.appendChild(card);
+  });
+}
+
+// Initial load
+async function loadItems() {
+  const { data, error } = await supabase
+    .from("lost_reports")
+    .select("*")
+    .order("createdAt", { ascending: false });
+
+  if (error) {
+    console.error("❌ Error fetching items:", error);
+    return;
   }
 
-  loadItems();
+  renderItems(data);
+}
+
+// Realtime subscription
+function subscribeToRealtime() {
+  supabase
+    .channel("public:lost_reports") // channel name can be anything
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "lost_reports" },
+      (payload) => {
+        console.log("Change received!", payload);
+        loadItems(); // Reload items on any change
+      }
+    )
+    .subscribe();
+}
+
+// Run
+loadItems();
+subscribeToRealtime();

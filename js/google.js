@@ -22,7 +22,7 @@ const firebaseConfig = {
    let currentUserUID = null;
    let currentUserEmail = null;
    
-      document.getElementById("google-signup").addEventListener("click", async (e) => {
+      document.getElementById("google-signup").addEventListener("click", async(e) => {
       e.preventDefault();
       try {
         const result = await signInWithPopup(auth, provider);
@@ -41,7 +41,8 @@ const firebaseConfig = {
           document.getElementById("create-account").style.display = "block";
           document.getElementById("signup-box").style.display = "none";
         }
-      } catch (err) {
+
+      } catch(err) {
         console.error(err);
         alert(err.message);
       }
@@ -56,7 +57,7 @@ const firebaseConfig = {
         alert("Please fill in all fields.");
         return;
       }
-
+    try{
     await setDoc(doc(db, "users", currentUserUID), {
         uid: currentUserUID,
         email: currentUserEmail,
@@ -67,6 +68,12 @@ const firebaseConfig = {
       });
 
       alert("Signup complete!");
-      window.location.href = "loggedin.html"; // Redirect to logged in page after signup
+      window.location.href = "loggedin.html";
+     }
+     catch (error) {
+      console.error("Error saving user data:", error);
+      alert("Error: " + error.message);
+    } 
+    // Redirect to logged in page after signup
     });
     
