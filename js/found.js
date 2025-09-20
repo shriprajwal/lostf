@@ -30,7 +30,6 @@ function renderItems(data) {
       <div class="label">Item Name</div><div>${item.title || ""}</div>
       <div class="label">Category</div><div>${item.category || ""}</div>
       <div class="label">Description</div><div>${item.description || ""}</div>
-      <div class="label">Date & Time</div><div>${item.time || ""}</div>
       <div class="label">Reported On</div><div>${reportedOn}</div>
       <div class="label">Location</div><div>${item.location || ""}</div>
       <div class="label">Status</div>
