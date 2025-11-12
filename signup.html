@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="css/signup.css" />
   <script type="module" src="js/auth.js" defer></script>
    <script type="module" src="js/google.js" defer></script>
+   <script src="https://unpkg.com/lucide@latest"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   
@@ -41,14 +43,26 @@
         <input type="username" placeholder="Username" id="username" required />       
         <input type="text" placeholder="College ID" id="id" required />
         <input type="email" placeholder="Email" id="email" required />
-        <input type="password" placeholder="Create password" id="password" required />
-        <span class="toggle-password">Show</span>
         <div class="password-wrapper">
-          <input type="password" placeholder="Confirm password" id="confirmpassword" required />
-            <span class="toggle-password">Show</span>
-        </div>
+  <input type="password" placeholder="Create password" id="password" required />
+  <button type="button" class="toggle-password" id="togglePassword">
+    <i data-lucide="eye"></i>
+  </button>
+</div>
+
+<div class="password-wrapper">
+  <input type="password" placeholder="Confirm password" id="confirmpassword" required />
+  <button type="button" class="toggle-password" id="toggleConfirmPassword">
+    <i data-lucide="eye"></i>
+  </button>
+</div>
+
         <button id="submit" type="submit" class="signupbtn">Signup</button>
         <p class="login-link">Already have an account? <a href="login.html">Login</a></p>
+        <p class="forgot-password">
+  <a href="reset-password.html" id="forgotPasswordLink">Forgot Password?</a>
+</p>
+
 
         <div class="divider"><span>Or</span></div>
 

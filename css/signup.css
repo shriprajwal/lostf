@@ -380,3 +380,111 @@ main {
   color: #ccc;
   text-decoration: none;
 }
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 70px; /* leave space for toggle text */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  color: #007bff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-password:hover {
+  text-decoration: underline;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 45px; /* space for icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  margin-bottom: 12px;
+  border: none;
+  cursor: pointer;
+  color: #909194;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: transform 0.2s ease;
+}
+
+.toggle-password:hover {
+  transform: scale(1.1);
+}
+
+.toggle-password svg {
+  width: 20px;
+  height: 20px;
+}
+
+.forgot-password {
+  text-align: center;
+  margin-top: -15px;
+}
+.forgot-password a {
+  color: #007bff;
+  font-size: 14.4px;
+  text-decoration: none;
+}
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+/* ===== TOAST POPUP STYLES ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: all 0.4s ease;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Animation when showing */
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Color variations */
+.toast.success {
+  background: rgba(46, 204, 113, 0.9);
+}
+.toast.error {
+  background: rgba(231, 76, 60, 0.9);
+}
+.toast.info {
+  background: rgba(52, 152, 219, 0.9);
+}
+
