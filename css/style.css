@@ -313,3 +313,27 @@ button {
       color: #ef4444;
       display: none;
     }
+
+    /* Change calendar and clock icon color in datetime-local */
+/* ✅ Make the datetime-local icon white */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  background: url("data:image/svg+xml;utf8,<svg fill='white' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z'/></svg>")
+    no-repeat center;
+  background-size: 18px 18px;
+  color: white;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+/* optional hover glow */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* force dark style for input */
+input[type="datetime-local"] {
+  color-scheme: dark;
+  background-color: #21262d;
+  color: #fff;
+  font-weight: bold;
+}

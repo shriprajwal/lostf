@@ -617,3 +617,70 @@ main {
 .user-dropdown:hover .fas.fa-user {
   color: #3d87ff;
 }
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  margin-bottom: 12px;
+  border: none;
+  cursor: pointer;
+  color: #909194;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: transform 0.2s ease;
+}
+
+.toggle-password:hover {
+  transform: scale(1.1);
+}
+
+.toggle-password svg {
+  width: 20px;
+  height: 20px;
+}
+
+.forgot-password {
+  text-align: center;
+  margin-top: -15px;
+}
+.forgot-password a {
+  color: #007bff;
+  font-size: 14.4px;
+  text-decoration: none;
+}
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 130px; /* Space for icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.toggle-password:hover {
+  color: #007bff;
+  transform: scale(1.1);
+}
+
