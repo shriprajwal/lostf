@@ -406,10 +406,9 @@ export default function App() {
   const deleteStorageImage = async (imageUrl) => {
     const fileName = extractStorageFileName(imageUrl);
     if (!fileName) return;
-    try {
-      await supabase.storage.from('images').remove([fileName]);
-    } catch (_) {
-      // Silently ignore storage deletion errors
+    const { error } = await supabase.storage.from('images').remove([fileName]);
+    if (error) {
+      console.warn('Storage image deletion failed:', error.message, '| file:', fileName);
     }
   };
 
