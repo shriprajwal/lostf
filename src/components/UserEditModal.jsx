@@ -214,8 +214,8 @@ export default function UserEditModal({ item, onClose, onSave }) {
               <input
                 type="text"
                 value={formData.collegeid}
-                onChange={(e) => setFormData({ ...formData, collegeid: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-blue-500 transition"
+                onChange={(e) => setFormData({ ...formData, collegeid: e.target.value.toUpperCase() })}
+                className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-blue-500 transition uppercase font-mono tracking-wider"
               />
             </div>
           </div>

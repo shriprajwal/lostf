@@ -20,10 +20,15 @@ export default function ProfileEditModal({ profile, onClose, onSave }) {
       setError('Display name cannot be empty.');
       return;
     }
+    const cleanId = collegeId.trim().toUpperCase();
+    if (cleanId && !/^[A-Z0-9-]+$/.test(cleanId)) {
+      setError('College ID must contain only letters (A-Z) and numbers (0-9).');
+      return;
+    }
     setError('');
     setSaving(true);
     try {
-      await onSave({ username: username.trim(), collegeId: collegeId.trim() });
+      await onSave({ username: username.trim(), collegeId: cleanId });
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to update profile.');
@@ -79,9 +84,9 @@ export default function ProfileEditModal({ profile, onClose, onSave }) {
             <input
               type="text"
               value={collegeId}
-              onChange={(e) => setCollegeId(e.target.value)}
+              onChange={(e) => { setCollegeId(e.target.value.toUpperCase()); setError(''); }}
               placeholder="e.g. 21IT102"
-              className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+              className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition uppercase tracking-wider font-mono"
             />
             <p className="text-[10px] text-slate-500 mt-1">Your College ID is shown on your reports to verify ownership.</p>
           </div>

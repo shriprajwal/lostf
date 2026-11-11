@@ -19,15 +19,20 @@ export default function GoogleOnboardingModal({
   const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmedName = studentName.trim();
-    const trimmedCollegeId = collegeId.trim();
+    const cleanCollegeId = collegeId.trim().toUpperCase();
 
     if (!trimmedName) {
       setError('Please enter your full student name.');
       return;
     }
 
-    if (!trimmedCollegeId) {
+    if (!cleanCollegeId) {
       setError('Please enter your College ID / Student Roll Number.');
+      return;
+    }
+
+    if (!/^[A-Z0-9-]+$/.test(cleanCollegeId)) {
+      setError('College ID must contain only letters (A-Z) and numbers (0-9).');
       return;
     }
 
@@ -36,7 +41,7 @@ export default function GoogleOnboardingModal({
     try {
       await onComplete({
         username: trimmedName,
-        collegeId: trimmedCollegeId
+        collegeId: cleanCollegeId
       });
     } catch (err) {
       setError(err.message || 'Failed to complete registration.');
@@ -126,9 +131,9 @@ export default function GoogleOnboardingModal({
                 type="text"
                 required
                 value={collegeId}
-                onChange={(e) => { setCollegeId(e.target.value); setError(''); }}
+                onChange={(e) => { setCollegeId(e.target.value.toUpperCase()); setError(''); }}
                 placeholder="e.g. 21IT102 / 4SO21CS042"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition uppercase"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition uppercase tracking-wider font-mono"
               />
             </div>
             <p className="text-[10px] text-slate-500 mt-1">

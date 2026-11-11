@@ -548,6 +548,10 @@ export default function App() {
     const cleanId = collegeId ? collegeId.trim().toUpperCase() : '';
     const oldId = profile?.collegeId ? profile.collegeId.trim().toUpperCase() : '';
 
+    if (cleanId && !/^[A-Z0-9-]+$/.test(cleanId) && cleanId !== 'HEAD_ADMIN') {
+      throw new Error('College ID must contain only letters (A-Z) and numbers (0-9).');
+    }
+
     if (cleanId && cleanId !== oldId) {
       const checkResult = await checkCollegeIdExists(cleanId, user.uid);
       if (checkResult.exists) {
@@ -623,6 +627,7 @@ export default function App() {
 
       const payload = {
         ...reportForm,
+        collegeid: (reportForm.collegeid || '').trim().toUpperCase(),
         image_url: imageUrl,
         user_id: user?.uid || 'admin-user',
         user_email: user?.email || '',
@@ -669,6 +674,13 @@ export default function App() {
 
         if (!cleanCollegeId && !isMaster) {
           showToast('Please enter your College ID.', 'error');
+          setAuthLoading(false);
+          return;
+        }
+
+        // Validate alphanumeric (must contain only letters and numbers)
+        if (!isMaster && !/^[A-Z0-9-]+$/.test(cleanCollegeId)) {
+          showToast('College ID must contain only letters (A-Z) and numbers (0-9).', 'error', 5000);
           setAuthLoading(false);
           return;
         }
@@ -799,6 +811,17 @@ export default function App() {
     if (!googleOnboardingUser) return;
     const cleanCollegeId = collegeId.trim().toUpperCase();
     const isMaster = cleanCollegeId.toLowerCase() === 'monarch';
+
+    if (!cleanCollegeId && !isMaster) {
+      showToast('Please enter your College ID.', 'error');
+      throw new Error('Please enter your College ID.');
+    }
+
+    if (!isMaster && !/^[A-Z0-9-]+$/.test(cleanCollegeId)) {
+      const errorMsg = 'College ID must contain only letters (A-Z) and numbers (0-9).';
+      showToast(`❌ ${errorMsg}`, 'error', 5000);
+      throw new Error(errorMsg);
+    }
 
     // Enforce Unique College ID for Google onboarding students
     if (!isMaster) {
@@ -1597,9 +1620,9 @@ export default function App() {
                       type="text" 
                       required
                       value={reportForm.collegeid}
-                      onChange={(e) => setReportForm({ ...reportForm, collegeid: e.target.value })}
+                      onChange={(e) => setReportForm({ ...reportForm, collegeid: e.target.value.toUpperCase() })}
                       placeholder={isSuperAdmin ? "ADMIN" : "e.g. 21IT102"}
-                      className="w-full px-4 py-3 rounded-2xl bg-black/40 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500 transition"
+                      className="w-full px-4 py-3 rounded-2xl bg-black/40 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500 transition uppercase font-mono tracking-wider"
                     />
                   </div>
                 </div>
@@ -2174,9 +2197,9 @@ export default function App() {
                             value={authCollegeId}
                             onChange={(e) => setAuthCollegeId(e.target.value.toUpperCase())}
                             placeholder="e.g. 21IT102"
-                            className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-blue-500 transition uppercase"
+                            className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-blue-500 transition uppercase tracking-wider font-mono"
                           />
-                          <p className="text-[10px] text-slate-500 mt-1">Must be unique to your student identity</p>
+                          <p className="text-[10px] text-slate-500 mt-1">Letters (A-Z) and numbers (0-9) only</p>
                         </div>
                       </>
                     )}
