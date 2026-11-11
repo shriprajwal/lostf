@@ -15,7 +15,8 @@ import {
   MessageCircle,
   ExternalLink,
   Lock,
-  Sparkles
+  Sparkles,
+  Edit3
 } from 'lucide-react';
 
 export default function ItemModal({ 
@@ -26,6 +27,7 @@ export default function ItemModal({
   onToggleResolve, 
   onDelete, 
   onAdminEdit,
+  onUserEdit,
   onShowToast,
   onRequireAuth
 }) {
@@ -279,7 +281,18 @@ export default function ItemModal({
                       onClick={() => { onClose(); onAdminEdit(item); }}
                       className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-amber-500/25"
                     >
+                      <Edit3 size={14} />
                       <span>Admin Edit</span>
+                    </button>
+                  )}
+
+                  {isOwner && !isSuperAdmin && onUserEdit && (
+                    <button 
+                      onClick={() => { onClose(); onUserEdit(item); }}
+                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-blue-600/25 active:scale-95"
+                    >
+                      <Edit3 size={14} />
+                      <span>Edit My Report</span>
                     </button>
                   )}
 

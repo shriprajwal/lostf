@@ -27,7 +27,9 @@ export default function ItemCard({
   onSelect, 
   onToggleResolve,
   onAdminEdit,
-  onAdminDelete
+  onAdminDelete,
+  onUserEdit,
+  onUserDelete
 }) {
   const isResolved = item.is_resolved === true || item.status === 'Resolved';
   const reportType = item.reportType || item.status || 'Lost';
@@ -163,7 +165,7 @@ export default function ItemCard({
           </a>
         )}
 
-        {/* Super Admin Direct Edit & Delete */}
+        {/* Super Admin Direct Edit & Delete (amber) */}
         {isSuperAdmin && onAdminEdit && (
           <button 
             onClick={() => onAdminEdit(item)}
@@ -178,6 +180,27 @@ export default function ItemCard({
           <button 
             onClick={() => onAdminDelete(item)}
             title="Super Admin Delete"
+            className="p-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 transition active:scale-95"
+          >
+            <Trash2 size={14} />
+          </button>
+        )}
+
+        {/* Owner-only Edit & Delete (blue) — hidden from admins to avoid duplicate buttons */}
+        {isOwner && !isSuperAdmin && onUserEdit && (
+          <button
+            onClick={() => onUserEdit(item)}
+            title="Edit my report"
+            className="p-2 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/40 text-blue-300 transition active:scale-95"
+          >
+            <Edit3 size={14} />
+          </button>
+        )}
+
+        {isOwner && !isSuperAdmin && onUserDelete && (
+          <button
+            onClick={() => onUserDelete(item)}
+            title="Delete my report"
             className="p-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 transition active:scale-95"
           >
             <Trash2 size={14} />

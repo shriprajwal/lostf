@@ -4,6 +4,8 @@ import ItemCard from './components/ItemCard.jsx';
 import ItemModal from './components/ItemModal.jsx';
 import AdminPanel from './components/AdminPanel.jsx';
 import AdminEditModal from './components/AdminEditModal.jsx';
+import UserEditModal from './components/UserEditModal.jsx';
+import ProfileEditModal from './components/ProfileEditModal.jsx';
 import { 
   auth, 
   supabase, 
@@ -16,6 +18,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  updateDoc,
   db
 } from './services/config.js';
 import { 
@@ -53,7 +56,8 @@ import {
   Crown, 
   ShieldAlert, 
   KeyRound,
-  UserPlus
+  UserPlus,
+  Pencil
 } from 'lucide-react';
 
 export default function App() {
@@ -70,6 +74,11 @@ export default function App() {
     return sessionStorage.getItem('lf_superadmin_auth') === 'AUTHORIZED';
   });
   const [editingItem, setEditingItem] = useState(null);
+
+  // User edit state (for the item owner, not admin)
+  const [userEditingItem, setUserEditingItem] = useState(null);
+  // Profile edit modal
+  const [editingProfile, setEditingProfile] = useState(false);
 
   // Listings Filters
   const [filterType, setFilterType] = useState('all'); // 'all', 'lost', 'found'
@@ -407,6 +416,75 @@ export default function App() {
       }
     } catch (err) {
       showToast('Error updating status: ' + err.message, 'error');
+    }
+  };
+
+  // User (owner) edit their own report
+  const handleUserEditReport = async (originalItem, updatedData) => {
+    if (!user || (originalItem.user_id !== user.uid && originalItem.user_email !== user.email)) {
+      showToast('You can only edit your own reports.', 'error');
+      return;
+    }
+    try {
+      const isResolved = updatedData.status === 'Resolved' || updatedData.is_resolved;
+      const { error } = await supabase
+        .from(originalItem.tableSource)
+        .update({
+          title: updatedData.title.trim(),
+          category: updatedData.category,
+          description: updatedData.description.trim(),
+          location: updatedData.location.trim(),
+          contact: updatedData.contact.trim(),
+          collegeid: updatedData.collegeid.trim(),
+          status: updatedData.status,
+          is_resolved: isResolved
+        })
+        .eq('id', originalItem.id);
+
+      if (error) throw error;
+
+      showToast('Your report has been updated! ✅', 'success');
+      setUserEditingItem(null);
+      loadReports();
+    } catch (err) {
+      showToast('Update error: ' + err.message, 'error');
+      throw err;
+    }
+  };
+
+  // User (owner) delete their own report
+  const handleUserDeleteReport = async (item) => {
+    if (!user || (item.user_id !== user.uid && item.user_email !== user.email)) {
+      showToast('You can only delete your own reports.', 'error');
+      return;
+    }
+    if (!confirm(`Delete "${item.title || 'this report'}"? This action cannot be undone.`)) return;
+    try {
+      const { error } = await supabase
+        .from(item.tableSource)
+        .delete()
+        .eq('id', item.id);
+
+      if (error) throw error;
+
+      showToast(`Report "${item.title}" deleted.`, 'success');
+      if (selectedItem?.id === item.id) setSelectedItem(null);
+      loadReports();
+    } catch (err) {
+      showToast('Delete error: ' + err.message, 'error');
+    }
+  };
+
+  // User update their own Firestore profile
+  const handleProfileUpdate = async ({ username, collegeId }) => {
+    if (!user) return;
+    try {
+      await updateDoc(doc(db, 'users', user.uid), { username, collegeId });
+      setProfile(prev => ({ ...prev, username, collegeId }));
+      showToast('Profile updated successfully! 🎉', 'success');
+    } catch (err) {
+      showToast('Profile update error: ' + err.message, 'error');
+      throw err;
     }
   };
 
@@ -890,6 +968,8 @@ export default function App() {
                       onToggleResolve={handleToggleResolve}
                       onAdminEdit={(it) => setEditingItem(it)}
                       onAdminDelete={handleAdminDelete}
+                      onUserEdit={(it) => setUserEditingItem(it)}
+                      onUserDelete={handleUserDeleteReport}
                     />
                   ))}
                 </div>
@@ -1088,6 +1168,8 @@ export default function App() {
                     onToggleResolve={handleToggleResolve}
                     onAdminEdit={(it) => setEditingItem(it)}
                     onAdminDelete={handleAdminDelete}
+                    onUserEdit={(it) => setUserEditingItem(it)}
+                    onUserDelete={handleUserDeleteReport}
                   />
                 ))}
               </div>
@@ -1476,6 +1558,15 @@ export default function App() {
                     <Crown size={15} /> Super Admin Console
                   </button>
                 )}
+                {/* Edit Profile — only for regular logged-in users */}
+                {!isSuperAdmin && user && (
+                  <button
+                    onClick={() => setEditingProfile(true)}
+                    className="px-5 py-2.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 font-bold text-xs transition flex items-center gap-2"
+                  >
+                    <Pencil size={14} /> Edit Profile
+                  </button>
+                )}
                 <button 
                   onClick={() => setCurrentTab('report')}
                   className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition flex items-center gap-2"
@@ -1561,6 +1652,8 @@ export default function App() {
                       onToggleResolve={handleToggleResolve}
                       onAdminEdit={(it) => setEditingItem(it)}
                       onAdminDelete={handleAdminDelete}
+                      onUserEdit={(it) => setUserEditingItem(it)}
+                      onUserDelete={handleUserDeleteReport}
                     />
                   ))}
                 </div>
@@ -1932,6 +2025,7 @@ export default function App() {
           onToggleResolve={handleToggleResolve}
           onDelete={handleAdminDelete}
           onAdminEdit={(it) => setEditingItem(it)}
+          onUserEdit={(it) => setUserEditingItem(it)}
           onShowToast={showToast}
           onRequireAuth={() => {
             setSelectedItem(null);
@@ -1947,6 +2041,24 @@ export default function App() {
           item={editingItem}
           onClose={() => setEditingItem(null)}
           onSave={handleAdminSave}
+        />
+      )}
+
+      {/* User (owner) Edit Report Modal */}
+      {userEditingItem && (
+        <UserEditModal
+          item={userEditingItem}
+          onClose={() => setUserEditingItem(null)}
+          onSave={handleUserEditReport}
+        />
+      )}
+
+      {/* Profile Edit Modal */}
+      {editingProfile && user && (
+        <ProfileEditModal
+          profile={profile}
+          onClose={() => setEditingProfile(false)}
+          onSave={handleProfileUpdate}
         />
       )}
 
