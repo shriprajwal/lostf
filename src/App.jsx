@@ -6,6 +6,7 @@ import AdminPanel from './components/AdminPanel.jsx';
 import AdminEditModal from './components/AdminEditModal.jsx';
 import UserEditModal from './components/UserEditModal.jsx';
 import ProfileEditModal from './components/ProfileEditModal.jsx';
+import GoogleOnboardingModal from './components/GoogleOnboardingModal.jsx';
 import { 
   auth, 
   supabase, 
@@ -79,6 +80,8 @@ export default function App() {
   const [userEditingItem, setUserEditingItem] = useState(null);
   // Profile edit modal
   const [editingProfile, setEditingProfile] = useState(false);
+  // Google sign in onboarding for new students
+  const [googleOnboardingUser, setGoogleOnboardingUser] = useState(null);
 
   // Listings Filters
   const [filterType, setFilterType] = useState('all'); // 'all', 'lost', 'found'
@@ -134,24 +137,42 @@ export default function App() {
           const docSnap = await getDoc(doc(db, 'users', currUser.uid));
           if (docSnap.exists()) {
             const data = docSnap.data();
-            setProfile(data);
-            setReportForm(prev => ({ ...prev, collegeid: data.collegeId || '' }));
-            // Only grant admin if role in database is explicitly 'admin'
-            if (data.role === 'admin' || data.role === 'superadmin') {
-              setIsSuperAdmin(true);
-              sessionStorage.setItem('lf_superadmin_auth', 'AUTHORIZED');
-            } else {
-              // Regular student: revoke only if not master-cleared
-              if (sessionStorage.getItem('lf_superadmin_auth') !== 'AUTHORIZED') {
-                setIsSuperAdmin(false);
+            // Check if student profile is complete (not default placeholder or empty)
+            if (data.collegeId && data.collegeId !== 'CAMPUS') {
+              setProfile(data);
+              setReportForm(prev => ({ ...prev, collegeid: data.collegeId || '' }));
+              // Only grant admin if role in database is explicitly 'admin'
+              if (data.role === 'admin' || data.role === 'superadmin') {
+                setIsSuperAdmin(true);
+                sessionStorage.setItem('lf_superadmin_auth', 'AUTHORIZED');
+              } else {
+                // Regular student: revoke only if not master-cleared
+                if (sessionStorage.getItem('lf_superadmin_auth') !== 'AUTHORIZED') {
+                  setIsSuperAdmin(false);
+                }
               }
+            } else {
+              // Existing record without a specific collegeId — prompt for details
+              setGoogleOnboardingUser({
+                uid: currUser.uid,
+                email: currUser.email,
+                defaultName: data.username || currUser.displayName || ''
+              });
             }
+          } else {
+            // New user without Firestore document yet — prompt for Student Name and College ID
+            setGoogleOnboardingUser({
+              uid: currUser.uid,
+              email: currUser.email,
+              defaultName: currUser.displayName || ''
+            });
           }
         } catch (e) {
           console.error('Error fetching user profile:', e);
         }
       } else {
         setProfile(null);
+        setGoogleOnboardingUser(null);
         if (sessionStorage.getItem('lf_superadmin_auth') !== 'AUTHORIZED') {
           setIsSuperAdmin(false);
         }
@@ -630,31 +651,78 @@ export default function App() {
     try {
       const res = await signInWithPopup(auth, googleProvider);
       const userDoc = await getDoc(doc(db, 'users', res.user.uid));
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, 'users', res.user.uid), {
+      
+      // If user does not exist or has empty/default collegeId, show onboarding modal
+      if (!userDoc.exists() || !userDoc.data().collegeId || userDoc.data().collegeId === 'CAMPUS') {
+        setGoogleOnboardingUser({
           uid: res.user.uid,
           email: res.user.email,
-          username: res.user.displayName || 'Student',
-          collegeId: 'CAMPUS',
-          role: 'user', // STRICTLY USER ROLE
-          createdAt: new Date().toISOString()
+          defaultName: (userDoc.exists() && userDoc.data().username) || res.user.displayName || ''
         });
-        setIsSuperAdmin(false);
-        sessionStorage.removeItem('lf_superadmin_auth');
       } else {
-        if (userDoc.data().role === 'admin' || userDoc.data().role === 'superadmin') {
+        const data = userDoc.data();
+        setProfile(data);
+        if (data.role === 'admin' || data.role === 'superadmin') {
           setIsSuperAdmin(true);
           sessionStorage.setItem('lf_superadmin_auth', 'AUTHORIZED');
         } else {
           setIsSuperAdmin(false);
           sessionStorage.removeItem('lf_superadmin_auth');
         }
+        showToast(`Welcome back, ${data.username || 'Student'}! 🎉`, 'success');
+        setCurrentTab('home');
       }
-      showToast('Signed in successfully! 🎉', 'success');
-      setCurrentTab('home');
     } catch (err) {
-      showToast(err.message, 'error');
+      if (err.code !== 'auth/popup-closed-by-user') {
+        showToast(err.message?.replace('Firebase: ', '') || err.message, 'error');
+      }
     }
+  };
+
+  // Complete Google Registration with Student Name & College ID
+  const handleCompleteGoogleOnboarding = async ({ username, collegeId }) => {
+    if (!googleOnboardingUser) return;
+    try {
+      const isMaster = collegeId.toLowerCase() === 'monarch';
+      const newProfile = {
+        uid: googleOnboardingUser.uid,
+        email: googleOnboardingUser.email,
+        username: username,
+        collegeId: isMaster ? 'HEAD_ADMIN' : collegeId,
+        role: isMaster ? 'admin' : 'user',
+        createdAt: new Date().toISOString()
+      };
+
+      await setDoc(doc(db, 'users', googleOnboardingUser.uid), newProfile, { merge: true });
+      setProfile(newProfile);
+      setReportForm(prev => ({ ...prev, collegeid: newProfile.collegeId }));
+      
+      if (isMaster) {
+        setIsSuperAdmin(true);
+        sessionStorage.setItem('lf_superadmin_auth', 'AUTHORIZED');
+        showToast('👑 Super Admin account activated! Welcome to Admin Console.', 'success');
+        setCurrentTab('admin');
+      } else {
+        setIsSuperAdmin(false);
+        sessionStorage.removeItem('lf_superadmin_auth');
+        showToast(`Welcome to Lostfusion, ${username}! 🎉 Profile verified.`, 'success');
+        setCurrentTab('home');
+      }
+      setGoogleOnboardingUser(null);
+    } catch (err) {
+      showToast('Registration error: ' + err.message, 'error');
+      throw err;
+    }
+  };
+
+  const handleCancelGoogleOnboarding = async () => {
+    await signOut(auth);
+    setGoogleOnboardingUser(null);
+    setUser(null);
+    setProfile(null);
+    setIsSuperAdmin(false);
+    sessionStorage.removeItem('lf_superadmin_auth');
+    showToast('Registration cancelled.', 'info');
   };
 
   const handleLogout = async () => {
@@ -2059,6 +2127,15 @@ export default function App() {
           profile={profile}
           onClose={() => setEditingProfile(false)}
           onSave={handleProfileUpdate}
+        />
+      )}
+
+      {/* Google Sign In Onboarding Modal for New Students */}
+      {googleOnboardingUser && (
+        <GoogleOnboardingModal 
+          googleUser={googleOnboardingUser}
+          onComplete={handleCompleteGoogleOnboarding}
+          onCancel={handleCancelGoogleOnboarding}
         />
       )}
 
