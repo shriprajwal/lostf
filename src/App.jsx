@@ -402,13 +402,16 @@ export default function App() {
     return null;
   };
 
-  // Helper: delete image from Supabase Storage (best-effort, never blocks report deletion)
+  // Helper: delete image from Supabase Storage
   const deleteStorageImage = async (imageUrl) => {
     const fileName = extractStorageFileName(imageUrl);
     if (!fileName) return;
     const { error } = await supabase.storage.from('images').remove([fileName]);
     if (error) {
-      console.warn('Storage image deletion failed:', error.message, '| file:', fileName);
+      // Log to console so you can see the actual RLS/policy error in browser DevTools
+      console.error('⚠️ Storage delete failed:', error.message, '| fileName:', fileName);
+    } else {
+      console.log('🗑️ Storage image deleted:', fileName);
     }
   };
 
