@@ -390,10 +390,33 @@ export default function App() {
     }
   };
 
+  // Helper: extract Supabase Storage filename from a public image URL
+  const extractStorageFileName = (imageUrl) => {
+    if (!imageUrl) return null;
+    try {
+      // Public URL format: .../storage/v1/object/public/images/<filename>
+      const marker = '/object/public/images/';
+      const idx = imageUrl.indexOf(marker);
+      if (idx !== -1) return decodeURIComponent(imageUrl.slice(idx + marker.length));
+    } catch (_) {}
+    return null;
+  };
+
+  // Helper: delete image from Supabase Storage (best-effort, never blocks report deletion)
+  const deleteStorageImage = async (imageUrl) => {
+    const fileName = extractStorageFileName(imageUrl);
+    if (!fileName) return;
+    try {
+      await supabase.storage.from('images').remove([fileName]);
+    } catch (_) {
+      // Silently ignore storage deletion errors
+    }
+  };
+
   // Super Admin / Owner Delete Handler (any report)
   const handleAdminDelete = async (item) => {
-    const isOwner = (user && item.user_id === user.uid) || 
-                    (profile?.collegeId && item.collegeid && item.collegeid.toUpperCase() === profile.collegeId.toUpperCase());
+    const isOwner = (profile?.collegeId && item.collegeid &&
+      item.collegeid.toUpperCase() === profile.collegeId.toUpperCase());
     if (!isSuperAdmin && !isOwner) {
       showToast('Action forbidden: You cannot delete reports created by others.', 'error');
       return;
@@ -402,12 +425,16 @@ export default function App() {
     if (!confirm(`Are you sure you want to permanently delete "${item.title || 'this item'}" from the campus registry?`)) return;
 
     try {
+      // 1. Delete the report row from Supabase table
       const { error } = await supabase
         .from(item.tableSource)
         .delete()
         .eq('id', item.id);
 
       if (error) throw error;
+
+      // 2. Delete the associated image from Supabase Storage (best-effort)
+      await deleteStorageImage(item.image_url);
 
       showToast(`Listing "${item.title}" permanently deleted.`, 'success');
       if (selectedItem?.id === item.id) setSelectedItem(null);
@@ -496,12 +523,16 @@ export default function App() {
     }
     if (!confirm(`Delete "${item.title || 'this report'}"? This action cannot be undone.`)) return;
     try {
+      // 1. Delete the report row from Supabase table
       const { error } = await supabase
         .from(item.tableSource)
         .delete()
         .eq('id', item.id);
 
       if (error) throw error;
+
+      // 2. Delete the associated image from Supabase Storage (best-effort)
+      await deleteStorageImage(item.image_url);
 
       showToast(`Report "${item.title}" deleted.`, 'success');
       if (selectedItem?.id === item.id) setSelectedItem(null);
