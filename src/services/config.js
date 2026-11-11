@@ -8,7 +8,17 @@ import {
   signOut,
   onAuthStateChanged 
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { 
+  getFirestore, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from "firebase/firestore";
 import { createClient } from "@supabase/supabase-js";
 
 export const firebaseConfig = {
@@ -38,5 +48,9 @@ export {
   doc,
   getDoc,
   setDoc,
-  updateDoc
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs
 };

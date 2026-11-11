@@ -20,6 +20,10 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
   db
 } from './services/config.js';
 import { 
@@ -496,12 +500,70 @@ export default function App() {
     }
   };
 
+  // Helper to verify College ID uniqueness across Firestore
+  const checkCollegeIdExists = async (collegeId, currentUid = null) => {
+    if (!collegeId) return false;
+    const cleanId = collegeId.trim();
+    if (cleanId.toLowerCase() === 'monarch' || cleanId.toUpperCase() === 'HEAD_ADMIN') {
+      return false;
+    }
+
+    try {
+      const upper = cleanId.toUpperCase();
+      const lower = cleanId.toLowerCase();
+
+      // Query uppercase
+      const qUpper = query(collection(db, 'users'), where('collegeId', '==', upper));
+      const snapUpper = await getDocs(qUpper);
+      for (const d of snapUpper.docs) {
+        if (!currentUid || d.id !== currentUid) {
+          return true;
+        }
+      }
+
+      // Query lowercase if different
+      if (lower !== upper) {
+        const qLower = query(collection(db, 'users'), where('collegeId', '==', lower));
+        const snapLower = await getDocs(qLower);
+        for (const d of snapLower.docs) {
+          if (!currentUid || d.id !== currentUid) {
+            return true;
+          }
+        }
+      }
+
+      // Query exact if different from both
+      if (cleanId !== upper && cleanId !== lower) {
+        const qExact = query(collection(db, 'users'), where('collegeId', '==', cleanId));
+        const snapExact = await getDocs(qExact);
+        for (const d of snapExact.docs) {
+          if (!currentUid || d.id !== currentUid) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    } catch (err) {
+      console.error('Error checking College ID uniqueness:', err);
+      return false;
+    }
+  };
+
   // User update their own Firestore profile
   const handleProfileUpdate = async ({ username, collegeId }) => {
     if (!user) return;
+    const cleanId = collegeId ? collegeId.trim().toUpperCase() : '';
+    if (cleanId) {
+      const isTaken = await checkCollegeIdExists(cleanId, user.uid);
+      if (isTaken) {
+        throw new Error(`College ID "${cleanId}" is already registered to another account.`);
+      }
+    }
     try {
-      await updateDoc(doc(db, 'users', user.uid), { username, collegeId });
-      setProfile(prev => ({ ...prev, username, collegeId }));
+      await updateDoc(doc(db, 'users', user.uid), { username, collegeId: cleanId });
+      setProfile(prev => ({ ...prev, username, collegeId: cleanId }));
+      setReportForm(prev => ({ ...prev, collegeid: cleanId }));
       showToast('Profile updated successfully! 🎉', 'success');
     } catch (err) {
       showToast('Profile update error: ' + err.message, 'error');
@@ -586,7 +648,25 @@ export default function App() {
     setAuthLoading(true);
     try {
       if (authMode === 'signup') {
-        const isMaster = authCollegeId.trim().toLowerCase() === 'monarch' || authPassword.trim().toLowerCase() === 'monarch';
+        const cleanCollegeId = authCollegeId.trim().toUpperCase();
+        const isMaster = cleanCollegeId.toLowerCase() === 'monarch' || authPassword.trim().toLowerCase() === 'monarch';
+
+        if (!cleanCollegeId && !isMaster) {
+          showToast('Please enter your College ID.', 'error');
+          setAuthLoading(false);
+          return;
+        }
+
+        // Enforce Unique College ID across students
+        if (!isMaster) {
+          const isTaken = await checkCollegeIdExists(cleanCollegeId);
+          if (isTaken) {
+            showToast(`❌ College ID "${cleanCollegeId}" is already registered. Each student must have a unique College ID.`, 'error', 5000);
+            setAuthLoading(false);
+            return;
+          }
+        }
+
         let cred = null;
         try {
           cred = await createUserWithEmailAndPassword(auth, authEmail, authPassword);
@@ -603,7 +683,7 @@ export default function App() {
           uid: cred.user.uid,
           email: authEmail,
           username: authUsername,
-          collegeId: isMaster ? 'HEAD_ADMIN' : authCollegeId,
+          collegeId: isMaster ? 'HEAD_ADMIN' : cleanCollegeId,
           role: role,
           createdAt: new Date().toISOString()
         };
@@ -682,13 +762,25 @@ export default function App() {
   // Complete Google Registration with Student Name & College ID
   const handleCompleteGoogleOnboarding = async ({ username, collegeId }) => {
     if (!googleOnboardingUser) return;
+    const cleanCollegeId = collegeId.trim().toUpperCase();
+    const isMaster = cleanCollegeId.toLowerCase() === 'monarch';
+
+    // Enforce Unique College ID for Google onboarding students
+    if (!isMaster) {
+      const isTaken = await checkCollegeIdExists(cleanCollegeId, googleOnboardingUser.uid);
+      if (isTaken) {
+        const errorMsg = `College ID "${cleanCollegeId}" is already registered by another student.`;
+        showToast(`❌ ${errorMsg}`, 'error', 5000);
+        throw new Error(errorMsg);
+      }
+    }
+
     try {
-      const isMaster = collegeId.toLowerCase() === 'monarch';
       const newProfile = {
         uid: googleOnboardingUser.uid,
         email: googleOnboardingUser.email,
-        username: username,
-        collegeId: isMaster ? 'HEAD_ADMIN' : collegeId,
+        username: username.trim(),
+        collegeId: isMaster ? 'HEAD_ADMIN' : cleanCollegeId,
         role: isMaster ? 'admin' : 'user',
         createdAt: new Date().toISOString()
       };
@@ -710,7 +802,9 @@ export default function App() {
       }
       setGoogleOnboardingUser(null);
     } catch (err) {
-      showToast('Registration error: ' + err.message, 'error');
+      if (!err.message?.includes('already registered')) {
+        showToast('Registration error: ' + err.message, 'error');
+      }
       throw err;
     }
   };
@@ -2017,16 +2111,17 @@ export default function App() {
 
                         <div>
                           <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
-                            College ID
+                            College ID / USN <span className="text-rose-400">*</span>
                           </label>
                           <input 
                             type="text" 
                             required
                             value={authCollegeId}
-                            onChange={(e) => setAuthCollegeId(e.target.value)}
+                            onChange={(e) => setAuthCollegeId(e.target.value.toUpperCase())}
                             placeholder="e.g. 21IT102"
-                            className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-blue-500 transition"
+                            className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs text-white focus:outline-none focus:border-blue-500 transition uppercase"
                           />
+                          <p className="text-[10px] text-slate-500 mt-1">Must be unique to your student identity</p>
                         </div>
                       </>
                     )}
