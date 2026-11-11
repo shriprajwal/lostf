@@ -23,6 +23,7 @@ import {
 export default function ItemCard({ 
   item, 
   currentUser, 
+  userCollegeId,
   isSuperAdmin,
   onSelect, 
   onToggleResolve,
@@ -33,7 +34,8 @@ export default function ItemCard({
 }) {
   const isResolved = item.is_resolved === true || item.status === 'Resolved';
   const reportType = item.reportType || item.status || 'Lost';
-  const isOwner = currentUser && item.user_id && item.user_id === currentUser.uid;
+  const isOwner = (currentUser && item.user_id && item.user_id === currentUser.uid) ||
+                  (userCollegeId && item.collegeid && item.collegeid.toUpperCase() === userCollegeId.toUpperCase());
   const canManage = isOwner || isSuperAdmin;
 
   // Category Icon Resolver

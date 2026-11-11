@@ -198,12 +198,14 @@ export default function App() {
       const lostItems = (lostRes.data || []).map(item => ({
         ...item,
         reportType: 'Lost',
+        is_resolved: item.status === 'Resolved',
         tableSource: 'lost_reports'
       }));
 
       const foundItems = (foundRes.data || []).map(item => ({
         ...item,
         reportType: 'Found',
+        is_resolved: item.status === 'Resolved',
         tableSource: 'found_reports'
       }));
 
@@ -363,6 +365,7 @@ export default function App() {
 
     try {
       const isResolved = updatedData.status === 'Resolved' || updatedData.is_resolved;
+      const statusToSave = isResolved ? 'Resolved' : (updatedData.status || originalItem.reportType || 'Lost');
       const { error } = await supabase
         .from(originalItem.tableSource)
         .update({
@@ -371,9 +374,8 @@ export default function App() {
           description: updatedData.description.trim(),
           location: updatedData.location.trim(),
           contact: updatedData.contact.trim(),
-          collegeid: updatedData.collegeid.trim(),
-          status: updatedData.status,
-          is_resolved: isResolved
+          collegeid: updatedData.collegeid.trim().toUpperCase(),
+          status: statusToSave
         })
         .eq('id', originalItem.id);
 
@@ -388,9 +390,11 @@ export default function App() {
     }
   };
 
-  // Super Admin Delete Handler (any report)
+  // Super Admin / Owner Delete Handler (any report)
   const handleAdminDelete = async (item) => {
-    if (!isSuperAdmin && (!user || item.user_id !== user.uid)) {
+    const isOwner = (user && item.user_id === user.uid) || 
+                    (profile?.collegeId && item.collegeid && item.collegeid.toUpperCase() === profile.collegeId.toUpperCase());
+    if (!isSuperAdmin && !isOwner) {
       showToast('Action forbidden: You cannot delete reports created by others.', 'error');
       return;
     }
@@ -415,20 +419,20 @@ export default function App() {
 
   // Toggle Resolved status
   const handleToggleResolve = async (item) => {
-    const isOwner = user && item.user_id === user.uid;
+    const isOwner = (user && item.user_id === user.uid) || 
+                    (profile?.collegeId && item.collegeid && item.collegeid.toUpperCase() === profile.collegeId.toUpperCase());
     if (!isSuperAdmin && !isOwner) {
       showToast('Permission denied: Only the author or Super Admin can resolve this item.', 'error');
       return;
     }
 
     const newResolved = !(item.is_resolved === true || item.status === 'Resolved');
-    const newStatusText = newResolved ? 'Resolved' : item.reportType;
+    const newStatusText = newResolved ? 'Resolved' : (item.reportType || 'Lost');
 
     try {
       const { error } = await supabase
         .from(item.tableSource)
         .update({
-          is_resolved: newResolved,
           status: newStatusText
         })
         .eq('id', item.id);
@@ -447,12 +451,16 @@ export default function App() {
 
   // User (owner) edit their own report
   const handleUserEditReport = async (originalItem, updatedData) => {
-    if (!user || (originalItem.user_id !== user.uid && originalItem.user_email !== user.email)) {
+    const isOwner = isSuperAdmin ||
+      (profile?.collegeId && originalItem.collegeid &&
+        originalItem.collegeid.toUpperCase() === profile.collegeId.toUpperCase());
+    if (!user || !isOwner) {
       showToast('You can only edit your own reports.', 'error');
       return;
     }
     try {
       const isResolved = updatedData.status === 'Resolved' || updatedData.is_resolved;
+      const statusToSave = isResolved ? 'Resolved' : (updatedData.status || originalItem.reportType || 'Lost');
       const { error } = await supabase
         .from(originalItem.tableSource)
         .update({
@@ -461,9 +469,8 @@ export default function App() {
           description: updatedData.description.trim(),
           location: updatedData.location.trim(),
           contact: updatedData.contact.trim(),
-          collegeid: updatedData.collegeid.trim(),
-          status: updatedData.status,
-          is_resolved: isResolved
+          collegeid: updatedData.collegeid.trim().toUpperCase(),
+          status: statusToSave
         })
         .eq('id', originalItem.id);
 
@@ -480,7 +487,10 @@ export default function App() {
 
   // User (owner) delete their own report
   const handleUserDeleteReport = async (item) => {
-    if (!user || (item.user_id !== user.uid && item.user_email !== user.email)) {
+    const isOwner = isSuperAdmin ||
+      (profile?.collegeId && item.collegeid &&
+        item.collegeid.toUpperCase() === profile.collegeId.toUpperCase());
+    if (!user || !isOwner) {
       showToast('You can only delete your own reports.', 'error');
       return;
     }
@@ -621,18 +631,18 @@ export default function App() {
         imageUrl = urlData.publicUrl;
       }
 
-      const reporterName = isSuperAdmin && !user 
-        ? 'Super Admin (Head Desk)' 
-        : (profile?.username || user?.displayName || user?.email?.split('@')[0] || 'Campus Member');
+      const cleanCollegeId = (reportForm.collegeid || profile?.collegeId || (isSuperAdmin ? 'ADMIN' : '')).trim().toUpperCase();
 
       const payload = {
-        ...reportForm,
-        collegeid: (reportForm.collegeid || '').trim().toUpperCase(),
+        title: reportForm.title.trim(),
+        category: reportForm.category,
+        description: reportForm.description.trim(),
+        time: reportForm.time || new Date().toISOString(),
+        location: reportForm.location.trim(),
+        collegeid: cleanCollegeId,
+        contact: reportForm.contact.trim(),
         image_url: imageUrl,
-        user_id: user?.uid || 'admin-user',
-        user_email: user?.email || '',
-        reporter_name: reporterName,
-        is_resolved: false,
+        status: reportForm.status || 'Lost',
         createdAt: new Date().toISOString()
       };
 
@@ -952,7 +962,10 @@ export default function App() {
   ];
 
   // User Reports in Dashboard
-  const userReports = reports.filter(r => (user && r.user_id === user.uid) || (user && r.user_email === user.email));
+  const userReports = reports.filter(r => 
+    (user && r.user_id && r.user_id === user.uid) || 
+    (profile?.collegeId && r.collegeid && r.collegeid.toUpperCase() === profile.collegeId.toUpperCase())
+  );
   const userReportsFiltered = userReports.filter(r => {
     const isRes = r.is_resolved === true || r.status === 'Resolved';
     if (dashboardFilter === 'active') return !isRes;
@@ -1203,6 +1216,7 @@ export default function App() {
                       key={item.id} 
                       item={item} 
                       currentUser={user}
+                      userCollegeId={profile?.collegeId}
                       isSuperAdmin={isSuperAdmin}
                       onSelect={(it) => setSelectedItem(it)}
                       onToggleResolve={handleToggleResolve}
@@ -1403,6 +1417,7 @@ export default function App() {
                     key={item.id} 
                     item={item} 
                     currentUser={user}
+                    userCollegeId={profile?.collegeId}
                     isSuperAdmin={isSuperAdmin}
                     onSelect={(it) => setSelectedItem(it)}
                     onToggleResolve={handleToggleResolve}
@@ -1887,6 +1902,7 @@ export default function App() {
                       key={item.id} 
                       item={item} 
                       currentUser={user}
+                      userCollegeId={profile?.collegeId}
                       isSuperAdmin={isSuperAdmin}
                       onSelect={(it) => setSelectedItem(it)}
                       onToggleResolve={handleToggleResolve}
@@ -2261,6 +2277,7 @@ export default function App() {
         <ItemModal 
           item={selectedItem} 
           currentUser={user}
+          userCollegeId={profile?.collegeId}
           isSuperAdmin={isSuperAdmin}
           onClose={() => setSelectedItem(null)}
           onToggleResolve={handleToggleResolve}

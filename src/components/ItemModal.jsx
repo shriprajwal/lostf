@@ -22,6 +22,7 @@ import {
 export default function ItemModal({ 
   item, 
   currentUser, 
+  userCollegeId,
   isSuperAdmin,
   onClose, 
   onToggleResolve, 
@@ -37,7 +38,8 @@ export default function ItemModal({
 
   const isResolved = item.is_resolved === true || item.status === 'Resolved';
   const reportType = item.reportType || item.status || 'Lost';
-  const isOwner = currentUser && item.user_id && item.user_id === currentUser.uid;
+  const isOwner = (currentUser && item.user_id && item.user_id === currentUser.uid) ||
+                  (userCollegeId && item.collegeid && item.collegeid.toUpperCase() === userCollegeId.toUpperCase());
   const canManage = isOwner || isSuperAdmin;
 
   const copyContact = () => {
