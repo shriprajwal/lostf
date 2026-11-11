@@ -20,6 +20,7 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  deleteDoc,
   collection,
   query,
   where,
@@ -502,51 +503,42 @@ export default function App() {
 
   // Helper to verify College ID uniqueness across Firestore
   const checkCollegeIdExists = async (collegeId, currentUid = null) => {
-    if (!collegeId) return false;
-    const cleanId = collegeId.trim();
-    if (cleanId.toLowerCase() === 'monarch' || cleanId.toUpperCase() === 'HEAD_ADMIN') {
-      return false;
+    if (!collegeId) return { exists: false };
+    const cleanId = collegeId.trim().toUpperCase();
+    if (cleanId.toLowerCase() === 'monarch' || cleanId === 'HEAD_ADMIN') {
+      return { exists: false };
     }
 
     try {
-      const upper = cleanId.toUpperCase();
-      const lower = cleanId.toLowerCase();
-
-      // Query uppercase
-      const qUpper = query(collection(db, 'users'), where('collegeId', '==', upper));
-      const snapUpper = await getDocs(qUpper);
-      for (const d of snapUpper.docs) {
-        if (!currentUid || d.id !== currentUid) {
-          return true;
+      // 1. Direct check on dedicated college_ids unique mapping collection
+      const idDoc = await getDoc(doc(db, 'college_ids', cleanId));
+      if (idDoc.exists()) {
+        const idData = idDoc.data();
+        if (!currentUid || idData.uid !== currentUid) {
+          return { exists: true, source: 'college_ids' };
         }
       }
 
-      // Query lowercase if different
-      if (lower !== upper) {
-        const qLower = query(collection(db, 'users'), where('collegeId', '==', lower));
-        const snapLower = await getDocs(qLower);
-        for (const d of snapLower.docs) {
+      // 2. Also check users collection as backup
+      try {
+        const qUpper = query(collection(db, 'users'), where('collegeId', '==', cleanId));
+        const snapUpper = await getDocs(qUpper);
+        for (const d of snapUpper.docs) {
           if (!currentUid || d.id !== currentUid) {
-            return true;
+            return { exists: true, source: 'users' };
           }
         }
+      } catch (queryErr) {
+        // Query might be blocked if user is not authenticated; college_ids check is primary
       }
 
-      // Query exact if different from both
-      if (cleanId !== upper && cleanId !== lower) {
-        const qExact = query(collection(db, 'users'), where('collegeId', '==', cleanId));
-        const snapExact = await getDocs(qExact);
-        for (const d of snapExact.docs) {
-          if (!currentUid || d.id !== currentUid) {
-            return true;
-          }
-        }
-      }
-
-      return false;
+      return { exists: false };
     } catch (err) {
       console.error('Error checking College ID uniqueness:', err);
-      return false;
+      if (err.code === 'permission-denied') {
+        return { exists: false, permissionDenied: true };
+      }
+      return { exists: false };
     }
   };
 
@@ -554,14 +546,38 @@ export default function App() {
   const handleProfileUpdate = async ({ username, collegeId }) => {
     if (!user) return;
     const cleanId = collegeId ? collegeId.trim().toUpperCase() : '';
-    if (cleanId) {
-      const isTaken = await checkCollegeIdExists(cleanId, user.uid);
-      if (isTaken) {
+    const oldId = profile?.collegeId ? profile.collegeId.trim().toUpperCase() : '';
+
+    if (cleanId && cleanId !== oldId) {
+      const checkResult = await checkCollegeIdExists(cleanId, user.uid);
+      if (checkResult.exists) {
         throw new Error(`College ID "${cleanId}" is already registered to another account.`);
       }
+      if (checkResult.permissionDenied) {
+        throw new Error('Firestore permission denied. Update Security Rules in Firebase Console.');
+      }
     }
+
     try {
       await updateDoc(doc(db, 'users', user.uid), { username, collegeId: cleanId });
+
+      if (cleanId && cleanId !== oldId) {
+        // Claim new college_ids record
+        await setDoc(doc(db, 'college_ids', cleanId), {
+          uid: user.uid,
+          email: user.email || '',
+          collegeId: cleanId,
+          updatedAt: new Date().toISOString()
+        });
+
+        // Clean up old college_ids record
+        if (oldId && oldId !== 'CAMPUS' && oldId !== 'HEAD_ADMIN') {
+          try {
+            await deleteDoc(doc(db, 'college_ids', oldId));
+          } catch (_) {}
+        }
+      }
+
       setProfile(prev => ({ ...prev, username, collegeId: cleanId }));
       setReportForm(prev => ({ ...prev, collegeid: cleanId }));
       showToast('Profile updated successfully! 🎉', 'success');
@@ -659,9 +675,14 @@ export default function App() {
 
         // Enforce Unique College ID across students
         if (!isMaster) {
-          const isTaken = await checkCollegeIdExists(cleanCollegeId);
-          if (isTaken) {
-            showToast(`❌ College ID "${cleanCollegeId}" is already registered. Each student must have a unique College ID.`, 'error', 5000);
+          const checkResult = await checkCollegeIdExists(cleanCollegeId);
+          if (checkResult.exists) {
+            showToast(`❌ College ID "${cleanCollegeId}" is already registered. Each student must have a unique College ID.`, 'error', 6000);
+            setAuthLoading(false);
+            return;
+          }
+          if (checkResult.permissionDenied) {
+            showToast(`⚠️ Firestore permission error: Update Firestore Rules in Firebase Console to allow checking College IDs.`, 'error', 6000);
             setAuthLoading(false);
             return;
           }
@@ -688,6 +709,20 @@ export default function App() {
           createdAt: new Date().toISOString()
         };
         await setDoc(doc(db, 'users', cred.user.uid), userProf, { merge: true });
+
+        // Claim the unique college_ids mapping document
+        if (!isMaster) {
+          try {
+            await setDoc(doc(db, 'college_ids', cleanCollegeId), {
+              uid: cred.user.uid,
+              email: authEmail,
+              collegeId: cleanCollegeId,
+              createdAt: new Date().toISOString()
+            });
+          } catch (cErr) {
+            console.error('Error reserving college_ids:', cErr);
+          }
+        }
 
         if (isMaster) {
           setIsSuperAdmin(true);
@@ -767,10 +802,15 @@ export default function App() {
 
     // Enforce Unique College ID for Google onboarding students
     if (!isMaster) {
-      const isTaken = await checkCollegeIdExists(cleanCollegeId, googleOnboardingUser.uid);
-      if (isTaken) {
+      const checkResult = await checkCollegeIdExists(cleanCollegeId, googleOnboardingUser.uid);
+      if (checkResult.exists) {
         const errorMsg = `College ID "${cleanCollegeId}" is already registered by another student.`;
-        showToast(`❌ ${errorMsg}`, 'error', 5000);
+        showToast(`❌ ${errorMsg}`, 'error', 6000);
+        throw new Error(errorMsg);
+      }
+      if (checkResult.permissionDenied) {
+        const errorMsg = `Firestore permission error: Update Firestore Rules in Firebase Console.`;
+        showToast(`⚠️ ${errorMsg}`, 'error', 6000);
         throw new Error(errorMsg);
       }
     }
@@ -786,6 +826,21 @@ export default function App() {
       };
 
       await setDoc(doc(db, 'users', googleOnboardingUser.uid), newProfile, { merge: true });
+
+      // Claim the unique college_ids mapping document
+      if (!isMaster) {
+        try {
+          await setDoc(doc(db, 'college_ids', cleanCollegeId), {
+            uid: googleOnboardingUser.uid,
+            email: googleOnboardingUser.email,
+            collegeId: cleanCollegeId,
+            createdAt: new Date().toISOString()
+          });
+        } catch (cErr) {
+          console.error('Error reserving college_ids:', cErr);
+        }
+      }
+
       setProfile(newProfile);
       setReportForm(prev => ({ ...prev, collegeid: newProfile.collegeId }));
       
