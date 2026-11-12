@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Primary Meta Tags -->
-    <title>Lostfusion | Modern Campus Lost &amp; Found Hub</title>
-    <meta name="title" content="Lostfusion | Modern Campus Lost &amp; Found Hub" />
-    <meta name="description" content="Lostfusion is the modern, real-time campus lost and found platform. Search listings, report lost belongings, and reconnect items with their owners across college." />
-    <meta name="keywords" content="Lostfusion, Lost fusion, lostfusion campus, lost and found, college lost and found, university lost items, campus registry, student lost and found, find lost items" />
+    <title>Lostfusion | Campus Lost and Found Portal</title>
+    <meta name="title" content="Lostfusion | Campus Lost and Found Portal" />
+    <meta name="description" content="Lostfusion is the centralized campus lost and found platform for students and faculty. Easily report, track, and recover lost belongings across college grounds." />
+    <meta name="keywords" content="Lostfusion, Lost fusion, campus lost and found, college lost and found, lost items campus, student lost and found, find lost items, campus registry" />
     <meta name="author" content="Lostfusion" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    <meta name="google-site-verification" content="google667016151a5678f5" />
     <link rel="canonical" href="https://lostfusion.vercel.app/" />
 
     <!-- Favicon & PWA Icons -->
@@ -82,7 +85,27 @@
       </div>
     </noscript>
 
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static content pre-rendered for search engine crawlers (Googlebot, Bingbot) -->
+      <header style="padding: 24px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <h1 style="font-size: 28px; font-weight: 800; color: #fff; margin: 0;">Lostfusion</h1>
+        <p style="color: #94a3b8; font-size: 14px; margin-top: 6px;">Campus Lost and Found Network</p>
+      </header>
+      <main style="max-width: 800px; margin: 40px auto; padding: 0 20px; text-align: center;">
+        <h2 style="font-size: 32px; font-weight: 700; color: #fff; line-height: 1.2;">
+          Lost something on campus? <span style="color: #3b82f6;">Lostfusion</span> helps you find it.
+        </h2>
+        <p style="color: #cbd5e1; font-size: 16px; margin: 16px auto; max-width: 600px; line-height: 1.6;">
+          Lostfusion is the dedicated campus lost &amp; found registry for university students and staff. Report lost valuables, upload photos, browse found items, and safely reconnect with campus owners.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+          <span style="background: rgba(255,255,255,0.06); padding: 8px 16px; border-radius: 9999px; font-size: 13px; color: #94a3b8;">Electronics &amp; Laptops</span>
+          <span style="background: rgba(255,255,255,0.06); padding: 8px 16px; border-radius: 9999px; font-size: 13px; color: #94a3b8;">College ID Cards</span>
+          <span style="background: rgba(255,255,255,0.06); padding: 8px 16px; border-radius: 9999px; font-size: 13px; color: #94a3b8;">Keys &amp; Wallets</span>
+          <span style="background: rgba(255,255,255,0.06); padding: 8px 16px; border-radius: 9999px; font-size: 13px; color: #94a3b8;">Books &amp; Documents</span>
+        </div>
+      </main>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
