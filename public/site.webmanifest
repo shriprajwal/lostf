@@ -1,0 +1,16 @@
+{
+  "name": "Lostfusion - Campus Lost and Found",
+  "short_name": "Lostfusion",
+  "description": "Find lost belongings or report found items instantly across campus with Lostfusion.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07090e",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

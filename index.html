@@ -3,12 +3,85 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lostfusion | Modern Campus Lost & Found</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>Lostfusion | Modern Campus Lost &amp; Found Hub</title>
+    <meta name="title" content="Lostfusion | Modern Campus Lost &amp; Found Hub" />
+    <meta name="description" content="Lostfusion is the modern, real-time campus lost and found platform. Search listings, report lost belongings, and reconnect items with their owners across college." />
+    <meta name="keywords" content="Lostfusion, Lost fusion, lostfusion campus, lost and found, college lost and found, university lost items, campus registry, student lost and found, find lost items" />
+    <meta name="author" content="Lostfusion" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://lostfusion.vercel.app/" />
+
+    <!-- Favicon & PWA Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#3b82f6" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lostfusion.vercel.app/" />
+    <meta property="og:site_name" content="Lostfusion" />
+    <meta property="og:title" content="Lostfusion | Modern Campus Lost &amp; Found Hub" />
+    <meta property="og:description" content="Lostfusion is the modern, real-time campus lost and found platform. Search listings, report lost belongings, and reconnect items with their owners across college." />
+    <meta property="og:image" content="https://lostfusion.vercel.app/favicon.svg" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:url" content="https://lostfusion.vercel.app/" />
+    <meta name="twitter:title" content="Lostfusion | Modern Campus Lost &amp; Found Hub" />
+    <meta name="twitter:description" content="Lostfusion is the modern, real-time campus lost and found platform. Search listings, report lost belongings, and reconnect items with their owners across college." />
+    <meta name="twitter:image" content="https://lostfusion.vercel.app/favicon.svg" />
+
+    <!-- Structured Data (JSON-LD) for Google Search Engine Optimization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://lostfusion.vercel.app/#website",
+          "url": "https://lostfusion.vercel.app/",
+          "name": "Lostfusion",
+          "alternateName": ["Lost Fusion", "Lostfusion Campus"],
+          "description": "Modern campus lost and found portal to report, search, and recover lost belongings across college.",
+          "inLanguage": "en-US"
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://lostfusion.vercel.app/#webapp",
+          "name": "Lostfusion",
+          "url": "https://lostfusion.vercel.app/",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "All",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "description": "Lostfusion helps campus students and staff quickly report lost or found items with photo uploads, category filters, and secure owner contact."
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   </head>
   <body class="bg-[#07090e] text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] selection:bg-blue-600 selection:text-white antialiased overflow-x-hidden">
+    <!-- Noscript fallback for search crawlers -->
+    <noscript>
+      <div style="padding: 2rem; background: #07090e; color: #fff; font-family: sans-serif; text-align: center;">
+        <h1>Lostfusion - Campus Lost &amp; Found</h1>
+        <p>Welcome to Lostfusion, the centralized campus portal for reporting lost belongings and finding items across college grounds.</p>
+        <p>Please enable JavaScript to access all interactive features of Lostfusion.</p>
+      </div>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
