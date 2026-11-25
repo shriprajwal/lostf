@@ -1,38 +1,55 @@
-import React, { useState } from 'react';
-import { 
-  X, 
-  MapPin, 
-  Calendar, 
-  Phone, 
-  Mail, 
-  CheckCircle2, 
-  Trash2, 
-  Share2, 
-  Copy, 
-  Check, 
-  ShieldCheck, 
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  X,
+  MapPin,
+  Calendar,
+  Phone,
+  Mail,
+  CheckCircle2,
+  Trash2,
+  Share2,
+  Copy,
+  Check,
+  ShieldCheck,
   AlertTriangle,
   MessageCircle,
   ExternalLink,
   Lock,
   Sparkles,
-  Edit3
+  Edit3,
+  ArrowRight
 } from 'lucide-react';
+import { findSmartMatches } from '../utils/matching.js';
 
-export default function ItemModal({ 
-  item, 
-  currentUser, 
+export default function ItemModal({
+  item,
+  allReports = [],
+  currentUser,
   userCollegeId,
   isSuperAdmin,
-  onClose, 
-  onToggleResolve, 
-  onDelete, 
+  onClose,
+  onSelectMatch,
+  onToggleResolve,
+  onDelete,
   onAdminEdit,
   onUserEdit,
   onShowToast,
   onRequireAuth
 }) {
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  const smartMatches = useMemo(
+    () => findSmartMatches(item, allReports, 3),
+    [item, allReports]
+  );
 
   if (!item) return null;
 
@@ -65,7 +82,12 @@ export default function ItemModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-xl animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={item.title ? `Details for ${item.title}` : 'Item details dialog'}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-xl animate-in fade-in duration-200"
+    >
       
       {/* Modal Dialog */}
       <div className="relative w-full max-w-3xl bg-[#0f131f] border border-white/10 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-200">
@@ -73,6 +95,7 @@ export default function ItemModal({
         {/* Floating Close Button */}
         <button 
           onClick={onClose}
+          aria-label="Close dialog"
           className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center border border-white/10 backdrop-blur-md transition active:scale-95"
           title="Close dialog"
         >
@@ -265,6 +288,40 @@ export default function ItemModal({
                 </div>
               )}
             </div>
+
+            {/* Smart Potential Matches (Open Innovation Matching Engine) */}
+            {smartMatches.length > 0 && (
+              <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs uppercase font-extrabold text-indigo-300 tracking-wider flex items-center gap-1.5">
+                    <Sparkles size={14} className="text-indigo-400" />
+                    Smart Potential {reportType === 'Lost' ? 'Found' : 'Lost'} Matches
+                  </h4>
+                  <span className="text-[10px] font-bold text-indigo-300/80 bg-indigo-500/15 px-2 py-0.5 rounded-full">
+                    Auto-Matched
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {smartMatches.map(({ item: match, score }) => (
+                    <button
+                      key={match.id}
+                      type="button"
+                      onClick={() => onSelectMatch && onSelectMatch(match)}
+                      className="text-left p-3 rounded-xl bg-black/30 hover:bg-black/50 border border-white/10 hover:border-indigo-400/50 transition group"
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">
+                          {score}% Match
+                        </span>
+                        <ArrowRight size={12} className="text-slate-400 group-hover:text-indigo-300 transition" />
+                      </div>
+                      <div className="text-xs font-bold text-white truncate">{match.title}</div>
+                      <div className="text-[11px] text-slate-400 truncate mt-0.5">{match.location || 'Campus'}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Anti-Fraud Guidelines */}
             <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3 text-xs text-amber-200/90 leading-relaxed">

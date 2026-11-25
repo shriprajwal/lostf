@@ -172,9 +172,10 @@ export default function ItemCard({
           <button 
             onClick={() => onAdminEdit(item)}
             title="Super Admin Edit"
+            aria-label={`Admin edit ${item.title || 'report'}`}
             className="p-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 transition active:scale-95"
           >
-            <Edit3 size={14} />
+            <Edit3 size={14} aria-hidden="true" />
           </button>
         )}
 
@@ -182,9 +183,10 @@ export default function ItemCard({
           <button 
             onClick={() => onAdminDelete(item)}
             title="Super Admin Delete"
+            aria-label={`Admin delete ${item.title || 'report'}`}
             className="p-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 transition active:scale-95"
           >
-            <Trash2 size={14} />
+            <Trash2 size={14} aria-hidden="true" />
           </button>
         )}
 
@@ -193,9 +195,10 @@ export default function ItemCard({
           <button
             onClick={() => onUserEdit(item)}
             title="Edit my report"
+            aria-label={`Edit ${item.title || 'my report'}`}
             className="p-2 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/40 text-blue-300 transition active:scale-95"
           >
-            <Edit3 size={14} />
+            <Edit3 size={14} aria-hidden="true" />
           </button>
         )}
 
@@ -203,9 +206,10 @@ export default function ItemCard({
           <button
             onClick={() => onUserDelete(item)}
             title="Delete my report"
+            aria-label={`Delete ${item.title || 'my report'}`}
             className="p-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 transition active:scale-95"
           >
-            <Trash2 size={14} />
+            <Trash2 size={14} aria-hidden="true" />
           </button>
         )}
 
@@ -214,13 +218,14 @@ export default function ItemCard({
           <button 
             onClick={() => onToggleResolve(item)}
             title={isResolved ? "Reopen report" : "Mark as resolved"}
+            aria-label={isResolved ? `Reopen ${item.title || 'report'}` : `Mark ${item.title || 'report'} as resolved`}
             className={`p-2 rounded-xl border text-xs font-semibold transition active:scale-95 ${
               isResolved 
                 ? 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10' 
                 : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20'
             }`}
           >
-            {isResolved ? <Undo2 size={15} /> : <CheckCircle2 size={15} />}
+            {isResolved ? <Undo2 size={15} aria-hidden="true" /> : <CheckCircle2 size={15} aria-hidden="true" />}
           </button>
         )}
       </div>

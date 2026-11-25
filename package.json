@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "postinstall": "node scripts/patch-rollup.cjs"
   },
   "dependencies": {
@@ -21,12 +23,17 @@
     "rollup": "npm:@rollup/wasm-node@^4.68.2"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "jsdom": "^25.0.1",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
-    "vite": "^5.4.14"
+    "vite": "^5.4.14",
+    "vitest": "^2.1.9"
   }
 }

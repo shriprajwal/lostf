@@ -7,6 +7,17 @@ import AdminEditModal from './components/AdminEditModal.jsx';
 import UserEditModal from './components/UserEditModal.jsx';
 import ProfileEditModal from './components/ProfileEditModal.jsx';
 import GoogleOnboardingModal from './components/GoogleOnboardingModal.jsx';
+import Toast from './components/Toast.jsx';
+import {
+  extractStorageFileName,
+  isReportOwner
+} from './utils/reportHelpers.js';
+import {
+  validateCollegeId,
+  validatePhone,
+  validateImageFile,
+  sanitizeText
+} from './utils/validation.js';
 import { 
   auth, 
   supabase, 
@@ -390,18 +401,6 @@ export default function App() {
     }
   };
 
-  // Helper: extract Supabase Storage filename from a public image URL
-  const extractStorageFileName = (imageUrl) => {
-    if (!imageUrl) return null;
-    try {
-      // Public URL format: .../storage/v1/object/public/images/<filename>
-      const marker = '/object/public/images/';
-      const idx = imageUrl.indexOf(marker);
-      if (idx !== -1) return decodeURIComponent(imageUrl.slice(idx + marker.length));
-    } catch (_) {}
-    return null;
-  };
-
   // Helper: delete image from Supabase Storage
   const deleteStorageImage = async (imageUrl) => {
     const fileName = extractStorageFileName(imageUrl);
@@ -643,8 +642,15 @@ export default function App() {
       return;
     }
 
-    if (reportForm.contact.length !== 10) {
-      showToast('Phone number must be exactly 10 digits.', 'error');
+    const phoneCheck = validatePhone(reportForm.contact);
+    if (!phoneCheck.valid) {
+      showToast(phoneCheck.error, 'error');
+      return;
+    }
+
+    const imageCheck = validateImageFile(reportImage);
+    if (!imageCheck.valid) {
+      showToast(imageCheck.error, 'error');
       return;
     }
 
@@ -667,13 +673,13 @@ export default function App() {
       const cleanCollegeId = (reportForm.collegeid || profile?.collegeId || (isSuperAdmin ? 'ADMIN' : '')).trim().toUpperCase();
 
       const payload = {
-        title: reportForm.title.trim(),
+        title: sanitizeText(reportForm.title, 140),
         category: reportForm.category,
-        description: reportForm.description.trim(),
+        description: sanitizeText(reportForm.description, 1500),
         time: reportForm.time || new Date().toISOString(),
-        location: reportForm.location.trim(),
+        location: sanitizeText(reportForm.location, 140),
         collegeid: cleanCollegeId,
-        contact: reportForm.contact.trim(),
+        contact: phoneCheck.cleaned,
         image_url: imageUrl,
         status: reportForm.status || 'Lost',
         createdAt: new Date().toISOString()
@@ -1009,23 +1015,20 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[#07090e] text-slate-100 selection:bg-blue-600 selection:text-white relative">
       
+      {/* Skip to main content link for keyboard/screen-reader accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[120] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-blue-600 focus:text-white focus:text-xs focus:font-bold"
+      >
+        Skip to main content
+      </a>
+
       {/* Ambient Glows */}
       <div className="ambient-glow-1"></div>
       <div className="ambient-glow-2"></div>
 
       {/* Floating Animated Toast Alert */}
-      {toast && (
-        <div className={`fixed top-6 right-6 z-50 px-5 py-3.5 rounded-2xl backdrop-blur-xl border shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-4 duration-300 ${
-          toast.type === 'success' 
-            ? 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200 shadow-emerald-500/20' 
-            : toast.type === 'error'
-              ? 'bg-rose-950/90 border-rose-500/40 text-rose-200 shadow-rose-500/20' 
-              : 'bg-slate-900/90 border-blue-500/40 text-blue-200 shadow-blue-500/20'
-        }`}>
-          {toast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-          <span className="text-sm font-semibold">{toast.message}</span>
-        </div>
-      )}
+      <Toast toast={toast} onDismiss={() => setToast(null)} />
 
       {/* Modern Frosted Navbar - Strict Role Visibility */}
       <Navbar 
@@ -1038,7 +1041,7 @@ export default function App() {
       />
 
       {/* Main App Container */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 relative z-10">
+      <main id="main-content" className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 relative z-10">
         
         {/* ========================================================
             👑 SUPER ADMIN CONSOLE TAB (Protected)
@@ -2308,11 +2311,13 @@ export default function App() {
       {/* Item Details Luxury Modal */}
       {selectedItem && (
         <ItemModal 
-          item={selectedItem} 
+          item={selectedItem}
+          allReports={reports}
           currentUser={user}
           userCollegeId={profile?.collegeId}
           isSuperAdmin={isSuperAdmin}
           onClose={() => setSelectedItem(null)}
+          onSelectMatch={(match) => setSelectedItem(match)}
           onToggleResolve={handleToggleResolve}
           onDelete={handleAdminDelete}
           onAdminEdit={(it) => setEditingItem(it)}
